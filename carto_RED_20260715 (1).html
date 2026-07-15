@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartographie QA — RED</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F4F4F2;--surface:#FFFFFF;--border:#E4E4E0;--border2:#EFEFEC;
+  --text:#1A1A1A;--text2:#666;--text3:#AAA;
+  --blue:#185FA5;--green:#2D6A0A;--green-bg:#EBF4DE;
+  --p0:#A32D2D;--p0bg:#FCEBEB;--p0bd:#E8AAAA;
+  --p1:#6B3A00;--p1bg:#FDF0DC;--p1bd:#F0CC88;
+  --p2:#1A5C1A;--p2bg:#E8F5E8;--p2bd:#88CC88;
+  --p3:#0C447C;--p3bg:#E5F0FB;--p3bd:#88AADD;
+  --p4:#555;--p4bg:#F0EFEC;--p4bd:#CCCCCC;
+  --ad:#777;--adbg:#F7F7F5;--adbd:#DDDDDD;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;min-height:100vh}
+
+/* ── HEADER ── */
+.header{background:var(--text);color:#fff;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-title{font-size:14px;font-weight:600;letter-spacing:-.2px}
+.header-badge{font-size:10px;background:#333;color:#999;padding:2px 8px;border-radius:10px;font-weight:500}
+.header-btns{display:flex;gap:6px}
+.hbtn{padding:5px 12px;border-radius:5px;border:1px solid #444;background:transparent;color:#CCC;cursor:pointer;font-size:11px;font-weight:500;transition:all .12s}
+.hbtn:hover{background:#333;color:#fff;border-color:#666}
+.hbtn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.hbtn.primary:hover{background:#0d4a8a}
+
+/* ── KPI BAR ── */
+.kpi-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:0}
+.kpi{padding:12px 28px 12px 0;display:flex;align-items:baseline;gap:8px;border-right:1px solid var(--border2);margin-right:28px}
+.kpi:last-child{border-right:none;margin-right:0}
+.kpi-n{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.kpi-l{font-size:11px;color:var(--text2);font-weight:500}
+
+/* ── TOOLBAR ── */
+.toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:sticky;top:52px;z-index:100}
+.toolbar input,.toolbar select{padding:5px 10px;border-radius:5px;border:1px solid var(--border);font-size:12px;background:#fff;outline:none;color:var(--text)}
+.toolbar input{min-width:200px}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,165,.1)}
+.toolbar-sep{width:1px;height:20px;background:var(--border);margin:0 4px}
+.rc{font-size:11px;color:var(--text3);margin-left:4px}
+.legend{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
+.ld{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* ── CONTENT ── */
+.content{padding:16px 24px;max-width:1800px;margin:0 auto}
+
+/* ── GROUP ── */
+.grp{background:var(--surface);border-radius:8px;border:1px solid var(--border);margin-bottom:8px;overflow:hidden}
+.grp-h{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;user-select:none;transition:background .1s}
+.grp-h:hover{background:#FAFAF8}
+.grp-accent{width:4px;height:36px;border-radius:2px;flex-shrink:0}
+.grp-info{flex:1;min-width:0}
+.grp-name{font-size:14px;font-weight:600}
+.grp-desc{font-size:11px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grp-pills{display:flex;gap:5px;align-items:center;flex-shrink:0}
+.pill{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.pill-t{background:#F0F0EE;color:#555}
+.pill-a{background:var(--green-bg);color:var(--green)}
+.pill-m{background:#FDF0DC;color:var(--p1)}
+.grp-chev{font-size:14px;color:var(--text3);transition:transform .15s;flex-shrink:0;line-height:1}
+.grp-chev.open{transform:rotate(180deg)}
+.grp-prog{height:2px;background:#F0F0EE}
+.grp-prog-fill{height:100%;transition:width .3s}
+.grp-body{display:none;border-top:1px solid var(--border2)}
+.grp-body.open{display:block}
+
+/* ── SUB ── */
+.sub{border-bottom:1px solid var(--border2)}
+.sub:last-child{border-bottom:none}
+.sub-h{display:flex;align-items:center;gap:8px;padding:8px 16px 8px 28px;cursor:pointer;background:#FAFAF8;user-select:none;transition:background .1s}
+.sub-h:hover{background:#F5F5F2}
+.sub-icon{font-size:11px;flex-shrink:0}
+.sub-name{font-size:12px;font-weight:500;color:#333;flex:1}
+.sub-meta{font-size:11px;color:var(--text3)}
+.sub-chev{font-size:12px;color:var(--text3);transition:transform .15s}
+.sub-chev.open{transform:rotate(180deg)}
+.sub-body{display:none}
+.sub-body.open{display:block}
+
+/* ── PRIO GRID ── */
+.pcols{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-top:1px solid var(--border2)}
+.pcol{border-right:1px solid var(--border2);min-height:48px}
+.pcol:last-child{border-right:none}
+.pcol.hidden{display:none}
+.ph{padding:5px 8px;font-size:10px;font-weight:700;text-align:center;border-bottom:1px solid var(--border2);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:4px}
+.ph0{background:var(--p0bg);color:var(--p0)}
+.ph1{background:var(--p1bg);color:var(--p1)}
+.ph2{background:var(--p2bg);color:var(--p2)}
+.ph3{background:var(--p3bg);color:var(--p3)}
+.ph4{background:var(--p4bg);color:var(--p4)}
+.phad{background:var(--adbg);color:var(--ad)}
+.ph-count{font-size:9px;opacity:.7;font-weight:400}
+.tc{padding:6px;position:relative}
+
+/* ── TICKET ── */
+.tk{background:#FFF;border:1px solid var(--border);border-radius:5px;padding:6px 8px;margin-bottom:4px;display:flex;gap:6px;align-items:flex-start;cursor:default;transition:border-color .1s;position:relative}
+.tk:last-child{margin-bottom:0}
+.tk:hover{border-color:#BBBBBB}
+.tk:hover .tk-actions{opacity:1}
+.tk-bar{width:3px;min-height:32px;border-radius:1px;flex-shrink:0;align-self:stretch}
+.tk-auto{background:var(--green)}
+.tk-man{background:#DDDDD8}
+.tk-body{flex:1;min-width:0}
+.tk-top{display:flex;align-items:center;gap:5px;margin-bottom:2px;flex-wrap:wrap}
+.tk-key{font-size:10px;font-weight:700;color:var(--blue);text-decoration:none;cursor:pointer}
+.tk-key:hover{text-decoration:underline}
+.tk-auto-badge{font-size:9px;background:var(--green-bg);color:var(--green);padding:1px 5px;border-radius:3px;font-weight:600}
+.tk-man-badge{font-size:9px;background:#F0F0EE;color:#888;padding:1px 5px;border-radius:3px;font-weight:600;cursor:pointer}
+.tk-man-badge:hover{background:#E0E0DC}
+.tk-title{font-size:11px;color:#444;line-height:1.4;word-break:break-word}
+.tk-actions{opacity:0;display:flex;gap:3px;flex-shrink:0;transition:opacity .1s;align-self:flex-start;margin-top:1px}
+.tk-btn{padding:2px 5px;border-radius:3px;border:1px solid var(--border);background:#FFF;cursor:pointer;font-size:10px;color:var(--text2);transition:all .1s}
+.tk-btn:hover{background:#F0F0EE;border-color:#AAA}
+.tk-btn.del{color:#C03030}
+.tk-btn.del:hover{background:#FCEBEB;border-color:#E8AAAA}
+
+/* ── PRIO PICKER (dropdown) ── */
+.prio-pick{position:relative;display:inline-block}
+.prio-pick-btn{padding:2px 6px;border-radius:3px;border:1px solid var(--border);background:#FFF;cursor:pointer;font-size:10px;font-weight:600;color:var(--text2);transition:all .1s}
+.prio-pick-btn:hover{border-color:#AAA;background:#F5F5F2}
+.prio-drop{display:none;position:absolute;top:100%;left:0;z-index:500;background:#FFF;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.12);min-width:110px;padding:4px;margin-top:2px}
+.prio-drop.open{display:block}
+.prio-opt{padding:5px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;transition:background .08s;display:flex;align-items:center;gap:6px}
+.prio-opt:hover{background:#F5F5F2}
+.prio-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* ── ADD TICKET ── */
+.add-ticket-btn{display:flex;align-items:center;justify-content:center;gap:5px;padding:5px 8px;border-radius:4px;border:1px dashed var(--border);background:transparent;cursor:pointer;font-size:11px;color:var(--text3);width:100%;margin-top:4px;transition:all .1s}
+.add-ticket-btn:hover{border-color:var(--blue);color:var(--blue);background:rgba(24,95,165,.04)}
+.add-form{background:#F7F7F5;border:1px solid var(--border);border-radius:5px;padding:8px;margin-top:4px;display:none}
+.add-form.open{display:block}
+.add-form input{width:100%;padding:5px 8px;border-radius:4px;border:1px solid var(--border);font-size:12px;margin-bottom:6px;outline:none}
+.add-form input:focus{border-color:var(--blue)}
+.add-form-row{display:flex;gap:6px}
+.add-form select{flex:1;padding:5px 8px;border-radius:4px;border:1px solid var(--border);font-size:12px;outline:none}
+.add-form-btns{display:flex;gap:5px;margin-top:6px}
+.abtn{padding:5px 12px;border-radius:4px;border:1px solid var(--border);background:#FFF;cursor:pointer;font-size:11px;font-weight:500;transition:all .1s}
+.abtn.confirm{background:var(--blue);border-color:var(--blue);color:#fff}
+.abtn.confirm:hover{background:#0d4a8a}
+.abtn.cancel:hover{background:#F0F0EE}
+
+/* ── EMPTY ── */
+.empty{padding:12px 8px;text-align:center;color:var(--text3);font-size:18px}
+
+/* ── MORE ── */
+.more-btn{padding:4px 8px;text-align:center;font-size:11px;color:var(--blue);cursor:pointer;background:#FAFAF8;border-top:1px solid var(--border2)}
+.more-btn:hover{background:#F0F0EE;text-decoration:underline}
+
+/* ── SUB JIRA LINK ── */
+.sub-footer{padding:6px 16px 6px 28px;background:#FAFAF8;border-top:1px solid var(--border2);display:flex;align-items:center;gap:12px}
+.jira-link{font-size:11px;color:var(--blue);text-decoration:none}
+.jira-link:hover{text-decoration:underline}
+
+/* ── ADD GROUP / SUB BUTTONS ── */
+.add-sub-btn{display:flex;align-items:center;gap:5px;padding:7px 16px 7px 28px;border:none;border-top:1px dashed var(--border2);background:transparent;cursor:pointer;font-size:11px;color:var(--text3);width:100%;text-align:left;transition:all .1s}
+.add-sub-btn:hover{color:var(--blue);background:rgba(24,95,165,.04)}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#FFF;border-radius:8px;padding:20px;min-width:340px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal h3{font-size:14px;font-weight:600;margin-bottom:14px}
+.modal label{display:block;font-size:11px;color:var(--text2);margin-bottom:4px;font-weight:500}
+.modal input,.modal select,.modal textarea{width:100%;padding:7px 10px;border-radius:5px;border:1px solid var(--border);font-size:12px;margin-bottom:12px;outline:none;font-family:inherit}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--blue)}
+.modal textarea{resize:vertical;min-height:60px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.mbtn{padding:7px 16px;border-radius:5px;border:1px solid var(--border);background:#FFF;cursor:pointer;font-size:12px;font-weight:500;transition:all .1s}
+.mbtn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.mbtn.primary:hover{background:#0d4a8a}
+.mbtn:not(.primary):hover{background:#F0F0EE}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:#1A1A1A;color:#fff;padding:10px 16px;border-radius:6px;font-size:12px;z-index:2000;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* ── DRAG OVER ── */
+.pcol.drag-over .tc{background:rgba(24,95,165,.06);border-radius:4px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1000px){.pcols{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.pcols{grid-template-columns:repeat(2,1fr)}.kpi-bar{flex-wrap:wrap}.kpi{border-right:none;margin-right:0;padding-right:16px}}
+@media print{.toolbar,.header-btns,.tk-actions,.add-ticket-btn,.add-sub-btn{display:none!important}.grp-body,.sub-body{display:block!important}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-title">Cartographie QA — RED</div>
+    <div class="header-badge">Données live Jira · statut AUTOMATED</div>
+  </div>
+  <div class="header-btns">
+    <button class="hbtn" onclick="expandAll(true)">Tout déplier</button>
+    <button class="hbtn" onclick="expandAll(false)">Tout replier</button>
+    <button class="hbtn" onclick="openAddGroup()">+ Groupe</button>
+    <button class="hbtn primary" onclick="exportData()">Exporter JSON</button>
+    <button class="hbtn" onclick="importData()">Importer JSON</button>
+    <button class="hbtn" onclick="window.print()">Imprimer</button>
+  </div>
+</div>
+
+<div class="kpi-bar">
+  <div class="kpi"><span class="kpi-n" id="kpi-total">—</span><span class="kpi-l">Total tests actifs</span></div>
+  <div class="kpi"><span class="kpi-n" style="color:var(--green)" id="kpi-auto">—</span><span class="kpi-l">Automatisés</span></div>
+  <div class="kpi"><span class="kpi-n" style="color:#7A4008" id="kpi-man">—</span><span class="kpi-l">Manuels</span></div>
+</div>
+
+<div class="toolbar">
+  <input type="text" id="s-text" placeholder="Rechercher RED-xxxx ou mot-clé…" oninput="render()">
+  <div class="toolbar-sep"></div>
+  <select id="s-prio" onchange="render()">
+    <option value="">Toutes priorités</option>
+    <option value="P0">P0 — Critique</option>
+    <option value="P1">P1 — Important</option>
+    <option value="P2">P2 — Normal</option>
+    <option value="P3">P3 — Mineur</option>
+    <option value="P4">P4 — Régression</option>
+    <option value="AD">À définir</option>
+  </select>
+  <select id="s-auto" onchange="render()">
+    <option value="">Auto + Manuel</option>
+    <option value="auto">Automatisés</option>
+    <option value="man">Manuels</option>
+  </select>
+  <select id="s-grp" onchange="render()">
+    <option value="">Tous les groupes</option>
+  </select>
+  <div class="toolbar-sep"></div>
+  <span class="rc" id="rc"></span>
+  <div class="legend">
+    <div class="lg"><div class="ld" style="background:var(--green)"></div>Auto (AUTOMATED)</div>
+    <div class="lg"><div class="ld" style="background:#DDDDD8;border:1px solid #CCC"></div>Manuel (Ouvert)</div>
+  </div>
+</div>
+
+<div class="content" id="root"></div>
+
+<!-- Modal Ajout Ticket -->
+<div class="modal-bg" id="modal-tk">
+  <div class="modal">
+    <h3 id="modal-tk-title">Ajouter un ticket</h3>
+    <label>Clé Jira (ex: RED-1234)</label>
+    <input type="text" id="tk-key" placeholder="RED-" oninput="this.value=this.value.toUpperCase()">
+    <label>Titre du test</label>
+    <textarea id="tk-title" placeholder="Description du test…"></textarea>
+    <label>Priorité</label>
+    <select id="tk-prio">
+      <option value="P0">P0 — Critique</option>
+      <option value="P1">P1 — Important</option>
+      <option value="P2">P2 — Normal</option>
+      <option value="P3">P3 — Mineur</option>
+      <option value="P4">P4 — Régression</option>
+      <option value="AD" selected>À définir</option>
+    </select>
+    <label>Statut automation</label>
+    <select id="tk-auto">
+      <option value="man">Manuel (Ouvert)</option>
+      <option value="auto">Automatisé (AUTOMATED)</option>
+    </select>
+    <div class="modal-btns">
+      <button class="mbtn" onclick="closeModal('modal-tk')">Annuler</button>
+      <button class="mbtn primary" onclick="confirmAddTicket()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ajout Groupe -->
+<div class="modal-bg" id="modal-grp">
+  <div class="modal">
+    <h3>Ajouter un groupe fonctionnel</h3>
+    <label>Nom du groupe</label>
+    <input type="text" id="grp-name" placeholder="ex: Connect — Admin">
+    <label>Description</label>
+    <input type="text" id="grp-desc" placeholder="Courte description…">
+    <label>Couleur (hex)</label>
+    <input type="color" id="grp-color" value="#185FA5" style="height:36px;padding:2px">
+    <div class="modal-btns">
+      <button class="mbtn" onclick="closeModal('modal-grp')">Annuler</button>
+      <button class="mbtn primary" onclick="confirmAddGroup()">Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ajout Sous-thème -->
+<div class="modal-bg" id="modal-sub">
+  <div class="modal">
+    <h3>Ajouter un sous-thème</h3>
+    <label>Nom du sous-thème</label>
+    <input type="text" id="sub-name" placeholder="ex: Gestion des alertes">
+    <div class="modal-btns">
+      <button class="mbtn" onclick="closeModal('modal-sub')">Annuler</button>
+      <button class="mbtn primary" onclick="confirmAddSub()">Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Import -->
+<div class="modal-bg" id="modal-import">
+  <div class="modal">
+    <h3>Importer des données JSON</h3>
+    <label>Colle ton JSON ici</label>
+    <textarea id="import-json" style="min-height:120px;font-family:monospace;font-size:11px" placeholder='[{"id":"CONNECT_C","label":"Connect — Chargeur",...}]'></textarea>
+    <div class="modal-btns">
+      <button class="mbtn" onclick="closeModal('modal-import')">Annuler</button>
+      <button class="mbtn primary" onclick="confirmImport()">Importer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// AUTOMATED SET (statut Jira réel)
+// ═══════════════════════════════════════════════════════════
+const AUTO_SET=new Set(["RED-14144","RED-14065","RED-14027","RED-13614","RED-13495","RED-12323","RED-12321","RED-12293","RED-12291","RED-12290","RED-12193","RED-12189","RED-12187","RED-11075","RED-11055","RED-10586","RED-10579","RED-8644","RED-8372","RED-8293","RED-7949","RED-7820","RED-7662","RED-7646","RED-5979","RED-5604","RED-3990","RED-3763","RED-3760","RED-3439","RED-3095","RED-3014","RED-2788","RED-2786","RED-2784","RED-2542","RED-2528","RED-2344"]);
+const JU="https://upply1.atlassian.net/browse/";
+const PRIOS=["P0","P1","P2","P3","P4","AD"];
+const PRIO_LABELS={"P0":"P0","P1":"P1","P2":"P2","P3":"P3","P4":"P4","AD":"À définir"};
+const PRIO_CSS={"P0":"ph0","P1":"ph1","P2":"ph2","P3":"ph3","P4":"ph4","AD":"phad"};
+const PRIO_COLORS={"P0":"#A32D2D","P1":"#6B3A00","P2":"#1A5C1A","P3":"#0C447C","P4":"#555","AD":"#888"};
+const PRIO_BG={"P0":"#FCEBEB","P1":"#FDF0DC","P2":"#E8F5E8","P3":"#E5F0FB","P4":"#F0EFEC","AD":"#F7F7F5"};
+
+// Context pour les modals
+let _ctx={};
+
+// ═══════════════════════════════════════════════════════════
+// DATA INITIALE
+// ═══════════════════════════════════════════════════════════
+const DEFAULT_DATA=[
+  {
+    id:"CONNECT_C",
+    label:"Connect — Chargeur",
+    color:"#185FA5",
+    desc:"Lots disponibles, lots affrétés, offres reçues, affrètement, blacklist, poste du lot",
+    subs:[
+      {
+        id:"s1",
+        name:"Lots disponibles",
+        tickets:[
+          {
+            k:"RED-2542",
+            s:"Afficher les lots disponibles",
+            p:"P0"
+          },
+          {
+            k:"RED-2528",
+            s:"[Chargeur] Annuler un lot disponible",
+            p:"P0"
+          },
+          {
+            k:"RED-13614",
+            s:"[Connect][Chargeur] Poster un lot de bout en bout",
+            p:"P0"
+          },
+          {
+            k:"RED-2525",
+            s:"[Chargeur] Gestion du menu d'actions à 3 points pour un lot disponible",
+            p:"P1"
+          },
+          {
+            k:"RED-2526",
+            s:"[Chargeur] Modifier ou remplacer le temps d'exclusivité d'un lot",
+            p:"P1"
+          },
+          {
+            k:"RED-2527",
+            s:"[Chargeur] Retirer l'exclusivité d'un lot",
+            p:"P1"
+          },
+          {
+            k:"RED-9990",
+            s:"[Connect] Empêcher l'édition et l'annulation des lots taggés TMS",
+            p:"P1"
+          },
+          {
+            k:"RED-11941",
+            s:"Consultation de la jauge de Benchmark dans la modale côté chargeur",
+            p:"P1"
+          },
+          {
+            k:"RED-2553",
+            s:"Rechercher un lot selon un critère spécifique dans la liste des lots disponibles",
+            p:"P2"
+          },
+          {
+            k:"RED-2556",
+            s:"Trier les lots disponibles par Fret",
+            p:"P2"
+          },
+          {
+            k:"RED-2533",
+            s:"Possibilité de trier le tableau des lots disponibles",
+            p:"P2"
+          },
+          {
+            k:"RED-9303",
+            s:"[Chargeur] Ajouter un toggle pour afficher/retirer les Références Upply des lots",
+            p:"P2"
+          },
+          {
+            k:"RED-13029",
+            s:"Fiche transporteur: Affichage des informations légales, contact et badge",
+            p:"P3"
+          },
+          {
+            k:"RED-13030",
+            s:"Fiche transporteur: Affichage de la section Informations transporteur",
+            p:"P3"
+          },
+          {
+            k:"RED-2538",
+            s:"Triez les lots disponibles par Meilleur Prix",
+            p:"P4"
+          },
+          {
+            k:"RED-8796",
+            s:"Affichage des vignettes utilisateur sur la liste des lots",
+            p:"P4"
+          },
+          {
+            k:"RED-2559",
+            s:"Un tri décroissant des lots disponibles par Fret",
+            p:"P4"
+          },
+          {
+            k:"RED-2557",
+            s:"Faire Un tri croissant des lots disponibles par Fret",
+            p:"P4"
+          },
+          {
+            k:"RED-2531",
+            s:"Ajouter des filtres aux lots disponibles : Type de lot et Utilisateur",
+            p:"P4"
+          },
+          {
+            k:"RED-2537",
+            s:"Triez les lots disponibles par Date",
+            p:"P4"
+          }
+        ]
+      },
+      {
+        id:"s2",
+        name:"Lots affrétés & suivi transport",
+        tickets:[
+          {
+            k:"RED-12293",
+            s:"Affichage de la page des lots affrétés",
+            p:"P0"
+          },
+          {
+            k:"RED-3763",
+            s:"Naviguer entre les sections via les onglets de la page détail d'un lot affrété",
+            p:"P0"
+          },
+          {
+            k:"RED-12294",
+            s:"[Chargeur] Suivi du transport d'un lot affrété",
+            p:"P0"
+          },
+          {
+            k:"RED-3990",
+            s:"Ajouter un document dans la page détails d'un lot affrété",
+            p:"P1"
+          },
+          {
+            k:"RED-9924",
+            s:"Affichage et ouverture de liens publics/externe pour les sections POD et Other documents",
+            p:"P2"
+          },
+          {
+            k:"RED-3991",
+            s:"Supprimer ou remplacer un document dans la page détails d'un lot affrété",
+            p:"P2"
+          },
+          {
+            k:"RED-9297",
+            s:"Ajouter l'option Edit références dans la page détails d'un lot affrété",
+            p:"P2"
+          },
+          {
+            k:"RED-3713",
+            s:"Annuler l'affrètement d'un lot",
+            p:"P3"
+          },
+          {
+            k:"RED-3712",
+            s:"Menu à 3 points de la page lots affrétés",
+            p:"P3"
+          },
+          {
+            k:"RED-3818",
+            s:"Filtrer les lots affrétés par statut et utilisateur",
+            p:"P3"
+          },
+          {
+            k:"RED-3464",
+            s:"Triez les lots affrétés par Montant",
+            p:"P3"
+          },
+          {
+            k:"RED-3458",
+            s:"Triez les lots affrétés par Enlèvement et Livraison",
+            p:"P4"
+          },
+          {
+            k:"RED-3461",
+            s:"Triez les lots affrétés par Date",
+            p:"P4"
+          },
+          {
+            k:"RED-3462",
+            s:"Triez les lots affrétés par Transporteur",
+            p:"P4"
+          },
+          {
+            k:"RED-8924",
+            s:"Affichage de la vignette utilisateur sur la page de détails d'un lot affrété",
+            p:"P4"
+          },
+          {
+            k:"RED-3989",
+            s:"Empty state de la section document de la page détails des lots affrétés",
+            p:"P4"
+          }
+        ]
+      },
+      {
+        id:"s3",
+        name:"Offres reçues & affrètement",
+        tickets:[
+          {
+            k:"RED-12290",
+            s:"Affichage de la liste des offres reçues",
+            p:"P0"
+          },
+          {
+            k:"RED-12291",
+            s:"Consultation des détails d'une offre",
+            p:"P0"
+          },
+          {
+            k:"RED-2786",
+            s:"Accepter une offre",
+            p:"P0"
+          },
+          {
+            k:"RED-2784",
+            s:"Vérification des contenus du drawer lors de l'acceptation d'une offre",
+            p:"P0"
+          },
+          {
+            k:"RED-8376",
+            s:"Affréter un lot à un transporteur",
+            p:"P0"
+          },
+          {
+            k:"RED-8378",
+            s:"[Affréter un lot] Règles de gestion des dates dans le drawer d'affrètement",
+            p:"P1"
+          },
+          {
+            k:"RED-2770",
+            s:"Afficher le drawer pour affréter à d'autres conditions",
+            p:"P1"
+          },
+          {
+            k:"RED-2788",
+            s:"Rejeter une offre reçue depuis le drawer du rejet",
+            p:"P1"
+          },
+          {
+            k:"RED-8372",
+            s:"Affichage du drawer d'affrètement des lots à des transporteurs",
+            p:"P2"
+          },
+          {
+            k:"RED-8381",
+            s:"Affichage de la vignette des transporteurs dans le drawer d'affrètement",
+            p:"P2"
+          },
+          {
+            k:"RED-8373",
+            s:"Affréter un lot à un transporteur [Fret et moyen de transport]",
+            p:"P4"
+          },
+          {
+            k:"RED-8374",
+            s:"Affréter un lot à un transporteur [Enlèvement]",
+            p:"P4"
+          },
+          {
+            k:"RED-8375",
+            s:"Affréter un lot à un transporteur [Livraison]",
+            p:"P3"
+          },
+          {
+            k:"RED-13294",
+            s:"Affrètement direct: Recherche transporteur par contient",
+            p:"P4"
+          },
+          {
+            k:"RED-2624",
+            s:"Affichage du timer et de sa couleur selon la durée de validité de l'offre",
+            p:"P2"
+          },
+          {
+            k:"RED-2768",
+            s:"Gestion des CTA dans la page détails de l'offre sélectionné",
+            p:"P2"
+          },
+          {
+            k:"RED-11964",
+            s:"[Chargeurs] Consultation et contenu de la modale Benchmark",
+            p:"P2"
+          },
+          {
+            k:"RED-2760",
+            s:"Afficher le header de la page des offres reçues",
+            p:"P2"
+          },
+          {
+            k:"RED-2766",
+            s:"Affichage différencié des dates en cas de divergence entre lot et offre",
+            p:"P3"
+          },
+          {
+            k:"RED-2776",
+            s:"Ajouter des filtres à la page des offres reçues",
+            p:"P3"
+          },
+          {
+            k:"RED-2777",
+            s:"Possibilité de trier le tableau offres reçues",
+            p:"P4"
+          },
+          {
+            k:"RED-2780",
+            s:"Triez les offres reçues par Prix HT",
+            p:"P4"
+          },
+          {
+            k:"RED-2779",
+            s:"Triez les offres reçues par date Départ & Livraison",
+            p:"P4"
+          },
+          {
+            k:"RED-2781",
+            s:"Triez les offres reçues par Nom de l'entreprise",
+            p:"P4"
+          }
+        ]
+      },
+      {
+        id:"s4",
+        name:"Blacklist",
+        tickets:[
+          {
+            k:"RED-9903",
+            s:"[Blacklist] Bloquer un transporteur",
+            p:"P0"
+          },
+          {
+            k:"RED-9899",
+            s:"[Blacklist] Gestion des lots pour les transporteurs bloqués",
+            p:"P0"
+          },
+          {
+            k:"RED-9906",
+            s:"[Blacklist] Ne permet pas le blacklist d'un transporteur favori",
+            p:"P1"
+          },
+          {
+            k:"RED-9897",
+            s:"[Blacklist] Affichage de la page des transporteurs bloqués avec des transporteurs bloqués",
+            p:"P1"
+          },
+          {
+            k:"RED-9896",
+            s:"[Blacklist] Affichage de la page des transporteurs bloqués sans aucun transporteur bloqué",
+            p:"P2"
+          },
+          {
+            k:"RED-9902",
+            s:"[Blacklist] Ouverture de la modalité pour blacklister un transporteur",
+            p:"P2"
+          },
+          {
+            k:"RED-9898",
+            s:"[Blacklist] Confirmation de la suppression d'un transporteur bloqué",
+            p:"P2"
+          }
+        ]
+      },
+      {
+        id:"s5",
+        name:"Poste du lot & adresses",
+        tickets:[
+          {
+            k:"RED-2638",
+            s:"[Poster un lot] Champ Référence pour ce lot du formulaire Fret et transport",
+            p:"P0"
+          },
+          {
+            k:"RED-2639",
+            s:"[Poster un lot] Champ Référence bon de commande du formulaire Fret et transport",
+            p:"P0"
+          },
+          {
+            k:"RED-7476",
+            s:"[Poste du lot] Ajouter les checks Échanges Palettes et Marchandises dangereuses",
+            p:"P0"
+          },
+          {
+            k:"RED-10787",
+            s:"Création d'une adresse durant le post d'un lot : Ajout d'une nouvelle adresse",
+            p:"P0"
+          },
+          {
+            k:"RED-14027",
+            s:"Post du lot : Création d'une nouvelle adresse pour une étape",
+            p:"P0"
+          },
+          {
+            k:"RED-14065",
+            s:"[Affréter un lot] Confirmation d'affrètement d'un lot à un transporteur",
+            p:"P0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"CONNECT_T",
+    label:"Connect — Transporteur",
+    color:"#0F6E56",
+    desc:"Recherche de lots, envoi d'offres, offres envoyées, ordres d'affrètement",
+    subs:[
+      {
+        id:"s6",
+        name:"Recherche de lots",
+        tickets:[
+          {
+            k:"RED-3014",
+            s:"Validation du formulaire de recherche des lots",
+            p:"P0"
+          },
+          {
+            k:"RED-5604",
+            s:"Rechercher des lots depuis une Recherche sauvegardée",
+            p:"P1"
+          },
+          {
+            k:"RED-8406",
+            s:"Affichages dissociés du formulaire de recherche et des recherches sauvegardées",
+            p:"P1"
+          },
+          {
+            k:"RED-3013",
+            s:"Gestion du Rayon lors de recherche pour les départements, régions et les villes",
+            p:"P2"
+          },
+          {
+            k:"RED-5605",
+            s:"Drawer et Gestion des recherches sauvegardées",
+            p:"P2"
+          },
+          {
+            k:"RED-6785",
+            s:"Gestion des suggestions de la recherche lors de la recherche des lots",
+            p:"P3"
+          },
+          {
+            k:"RED-8573",
+            s:"Désélectionner une Recherche Sauvegardée",
+            p:"P3"
+          },
+          {
+            k:"RED-9374",
+            s:"[Transporteur] Afficher la référence Upply sur la page détails d'un lot",
+            p:"P3"
+          },
+          {
+            k:"RED-8625",
+            s:"Ajouter le champ nom dans le drawer de Recherche sauvegardée",
+            p:"P4"
+          },
+          {
+            k:"RED-4640",
+            s:"Ne pas afficher les Références des lots postés aux transporteurs",
+            p:"P4"
+          },
+          {
+            k:"RED-3094",
+            s:"[Transporteur] Consulter les détails d'un lot",
+            p:"P4"
+          }
+        ]
+      },
+      {
+        id:"s7",
+        name:"Envoi d'offres",
+        tickets:[
+          {
+            k:"RED-3095",
+            s:"[CONNECT][Transporteur] Envoi d'une offre",
+            p:"P0"
+          },
+          {
+            k:"RED-3439",
+            s:"[Transporteur] Annuler une offre envoyée",
+            p:"P0"
+          },
+          {
+            k:"RED-5979",
+            s:"Modification d'une offre active",
+            p:"P0"
+          },
+          {
+            k:"RED-7652",
+            s:"[Faire une offre] Gestion des champs Départ le, Livré le et Equipements Requis",
+            p:"P1"
+          },
+          {
+            k:"RED-3042",
+            s:"[Transporter] Gestion Type de camion lors de l'envoi d'une offre",
+            p:"P1"
+          },
+          {
+            k:"RED-7694",
+            s:"Gestion des dates Départ le & Livré le entre le chargeur et le transporteur",
+            p:"P2"
+          },
+          {
+            k:"RED-6295",
+            s:"[Envoi de l'offre] Ajouter les champs Marchandises dangereuses & Echange Palettes",
+            p:"P2"
+          },
+          {
+            k:"RED-11935",
+            s:"Comportement de la jauge en fonction du prix de l'offre",
+            p:"P3"
+          },
+          {
+            k:"RED-11976",
+            s:"[Transporteur] Animation de la jauge Benchmark sur la modale faire une offre",
+            p:"P3"
+          },
+          {
+            k:"RED-5936",
+            s:"Ajouter un champ durée de validité d'une offre dans le drawer Faire une offre",
+            p:"P4"
+          },
+          {
+            k:"RED-7662",
+            s:"[Transporteur] Consultation d'une offre envoyée",
+            p:"P4"
+          }
+        ]
+      },
+      {
+        id:"s8",
+        name:"Offres envoyées",
+        tickets:[
+          {
+            k:"RED-3627",
+            s:"Consulter la liste des offres envoyées",
+            p:"P0"
+          },
+          {
+            k:"RED-3751",
+            s:"Modification d'une offre en fonctions de son statut",
+            p:"P1"
+          },
+          {
+            k:"RED-3760",
+            s:"Passer le lot de Terminé à POD en vérification dans la page Ordres d'affrètements",
+            p:"P1"
+          },
+          {
+            k:"RED-5961",
+            s:"Consultation de la Validité de l'offre",
+            p:"P2"
+          },
+          {
+            k:"RED-3617",
+            s:"Filtre de la liste des offres envoyées",
+            p:"P3"
+          },
+          {
+            k:"RED-3625",
+            s:"Tri des colonnes depuis la page offres envoyées",
+            p:"P3"
+          },
+          {
+            k:"RED-3853",
+            s:"Suppression des Offres annulées",
+            p:"P4"
+          },
+          {
+            k:"RED-5962",
+            s:"Gestion des offres expirées",
+            p:"P4"
+          },
+          {
+            k:"RED-9103",
+            s:"Encart émission CO2 depuis la page détails de l'offre",
+            p:"P4"
+          }
+        ]
+      },
+      {
+        id:"s9",
+        name:"Ordres d'affrètement",
+        tickets:[
+          {
+            k:"RED-3313",
+            s:"Tri Page ordres d'affrétements",
+            p:"P3"
+          },
+          {
+            k:"RED-3747",
+            s:"Récupération de la MAP d'un ordre d'affrètement",
+            p:"P3"
+          },
+          {
+            k:"RED-3304",
+            s:"Affichage page ordres d'affrétements",
+            p:"P4"
+          },
+          {
+            k:"RED-3757",
+            s:"Afficher la section Suivi du transport",
+            p:"P4"
+          },
+          {
+            k:"RED-3758",
+            s:"Chargement et Livraison des Ordres d'affrètements",
+            p:"P4"
+          },
+          {
+            k:"RED-3949",
+            s:"Download la POD depuis le détails des ordres d'affrètement",
+            p:"P4"
+          },
+          {
+            k:"RED-3719",
+            s:"Annuler l'ordre d'affrètement",
+            p:"P4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"SMART",
+    label:"SMART",
+    color:"#854F0B",
+    desc:"Benchmark, Smartscan, UFI",
+    subs:[
+      {
+        id:"s10",
+        name:"Benchmark — Modes de transport",
+        tickets:[
+          {
+            k:"RED-12193",
+            s:"Benchmark Maritime : Long terme",
+            p:"P0"
+          },
+          {
+            k:"RED-7646",
+            s:"Benchmark Aérien - Air Freight",
+            p:"P0"
+          },
+          {
+            k:"RED-10579",
+            s:"[Maritime - FAK] Lancer un Benchmark",
+            p:"P0"
+          },
+          {
+            k:"RED-12187",
+            s:"Benchmark Routier EMEA - City",
+            p:"P0"
+          },
+          {
+            k:"RED-12321",
+            s:"Résultat Benchmark : Onglet Benchmark",
+            p:"P0"
+          },
+          {
+            k:"RED-12323",
+            s:"Résultat Benchmark : Onglet Historique",
+            p:"P1"
+          },
+          {
+            k:"RED-10586",
+            s:"Export Excel Historical view",
+            p:"P1"
+          },
+          {
+            k:"RED-12236",
+            s:"Benchmark Routier EMEA - Camion incomplet",
+            p:"P2"
+          },
+          {
+            k:"RED-8919",
+            s:"Benchmark Placeholders champs origine/destination",
+            p:"P2"
+          },
+          {
+            k:"RED-8076",
+            s:"Faire un Benchmark Origine = Destination",
+            p:"P2"
+          },
+          {
+            k:"RED-10402",
+            s:"[Maritime FAK] Affichage des onglets Benchmark Maritime et Maritime FAK",
+            p:"P2"
+          },
+          {
+            k:"RED-10403",
+            s:"[Maritime FAK] Vérification des champs du formulaire",
+            p:"P2"
+          },
+          {
+            k:"RED-9400",
+            s:"Affichage des Benchmarks récents",
+            p:"P3"
+          },
+          {
+            k:"RED-10671",
+            s:"Liste des Benchmarks récents",
+            p:"P3"
+          },
+          {
+            k:"RED-10538",
+            s:"Historique : Affichage des données de prix selon les options sélectionnées",
+            p:"P3"
+          },
+          {
+            k:"RED-10537",
+            s:"Historique : Affichage des données selon les brackets temporels",
+            p:"P3"
+          },
+          {
+            k:"RED-12189",
+            s:"Benchmark Routier Nord Am",
+            p:"P4"
+          },
+          {
+            k:"RED-10589",
+            s:"[Maritime FAK] Filtrer les données export Excel",
+            p:"P4"
+          },
+          {
+            k:"RED-10581",
+            s:"[Maritime - FAK] Edit du formulaire depuis le header Benchmark",
+            p:"P4"
+          }
+        ]
+      },
+      {
+        id:"s11",
+        name:"Smartscan — Rapports uniques et récurrents",
+        tickets:[
+          {
+            k:"RED-11055",
+            s:"[SmartScan Unique] Création d'un rapport",
+            p:"P1"
+          },
+          {
+            k:"RED-11075",
+            s:"[SMARTSCAN RECURRENT] Création d'un rapport Récurrent",
+            p:"P1"
+          },
+          {
+            k:"RED-2352",
+            s:"[SmartScan Unique] Blocage des Smartscan",
+            p:"P2"
+          },
+          {
+            k:"RED-11188",
+            s:"[Smartscan Unique] Ajout une modale scan: Bloqué, Annulé et Non généré",
+            p:"P2"
+          },
+          {
+            k:"RED-9547",
+            s:"[SmartScan Unique] Header de la page Smartscan",
+            p:"P3"
+          },
+          {
+            k:"RED-10350",
+            s:"[SmartScan Unique] Encart des nouveaux templates",
+            p:"P3"
+          },
+          {
+            k:"RED-2623",
+            s:"[Smartscan Unique] Consommation des lignes",
+            p:"P3"
+          },
+          {
+            k:"RED-11088",
+            s:"[SMARTSCAN RECURRENT] Liste des rapports récurrents",
+            p:"P4"
+          },
+          {
+            k:"RED-11071",
+            s:"[SMARTSCAN RECURRENT] Configuration des paramètres de récurrence",
+            p:"P4"
+          },
+          {
+            k:"RED-11087",
+            s:"[SMARTSCAN RECURRENT] Affichage des récurrences sur le rapport parent",
+            p:"P4"
+          }
+        ]
+      },
+      {
+        id:"s12",
+        name:"UFI — Indices de fret",
+        tickets:[
+          {
+            k:"RED-7820",
+            s:"Afficher la page des UFIs",
+            p:"P3"
+          },
+          {
+            k:"RED-7949",
+            s:"Vérification des blocs Évolutions et Prévisions sur le détail d'un UFI",
+            p:"P3"
+          },
+          {
+            k:"RED-8293",
+            s:"Ajout option Export sur le détail des UFIs",
+            p:"P3"
+          },
+          {
+            k:"RED-8644",
+            s:"Vérifier la comparaison des UFIs",
+            p:"P3"
+          },
+          {
+            k:"RED-8635",
+            s:"UFI_Page détail de comparaison des UFIs",
+            p:"P3"
+          },
+          {
+            k:"RED-7822",
+            s:"Sélection des UFIs",
+            p:"P4"
+          },
+          {
+            k:"RED-7865",
+            s:"Filtrer la liste des UFIs",
+            p:"P4"
+          },
+          {
+            k:"RED-8605",
+            s:"Gestion du bouton Comparer dans la liste des UFIs",
+            p:"P4"
+          },
+          {
+            k:"RED-9042",
+            s:"UFI_Modifier la base 100",
+            p:"P4"
+          },
+          {
+            k:"RED-8779",
+            s:"UFI_Filtre favori",
+            p:"P4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"JARVIS",
+    label:"Jarvis",
+    color:"#0C447C",
+    desc:"Facturation, billing, comptes shippers, dashboard interne",
+    subs:[
+      {
+        id:"s13",
+        name:"Billing & comptes shippers",
+        tickets:[
+          {
+            k:"RED-17031",
+            s:"[Billing] Voir la liste des comptes shippers dans Jarvis",
+            p:"AD"
+          },
+          {
+            k:"RED-17032",
+            s:"[Billing] Modifier les informations d'un compte shipper existant",
+            p:"AD"
+          },
+          {
+            k:"RED-17033",
+            s:"[Billing] Créer un compte shipper sans accès Jarvis",
+            p:"AD"
+          },
+          {
+            k:"RED-17034",
+            s:"[Billing] Créer un compte shipper avec accès Jarvis activé",
+            p:"AD"
+          },
+          {
+            k:"RED-17037",
+            s:"[Billing] Activer l'accès Jarvis d'un compte shipper",
+            p:"AD"
+          },
+          {
+            k:"RED-17038",
+            s:"[Billing] Désactiver l'accès Jarvis d'un compte shipper",
+            p:"AD"
+          },
+          {
+            k:"RED-16228",
+            s:"Ouvrir la modale d'édition des informations de facturation",
+            p:"AD"
+          },
+          {
+            k:"RED-16229",
+            s:"Pré-remplir les champs dans la modale d'édition",
+            p:"AD"
+          },
+          {
+            k:"RED-16230",
+            s:"Sauvegarder les modifications des informations de facturation",
+            p:"AD"
+          }
+        ]
+      },
+      {
+        id:"s14",
+        name:"Mode facturation & bascule",
+        tickets:[
+          {
+            k:"RED-17198",
+            s:"Confirmation d'un changement de mode et mise à jour de la brique",
+            p:"AD"
+          },
+          {
+            k:"RED-17193",
+            s:"Initialisation du mode par défaut — compte créé avant la mise en production",
+            p:"AD"
+          },
+          {
+            k:"RED-17194",
+            s:"Initialisation du mode par défaut — compte créé après la mise en production",
+            p:"AD"
+          },
+          {
+            k:"RED-17160",
+            s:"Bascule CHARGEUR vers UPPLY : lots publiés avant/après la date d'effet",
+            p:"AD"
+          },
+          {
+            k:"RED-17159",
+            s:"Bascule UPPLY vers CHARGEUR : lots publiés avant/après la date d'effet",
+            p:"AD"
+          },
+          {
+            k:"RED-16201",
+            s:"Ouvrir la modale d'édition de facturation",
+            p:"AD"
+          }
+        ]
+      },
+      {
+        id:"s15",
+        name:"Comptes & souscriptions",
+        tickets:[
+          {
+            k:"RED-15628",
+            s:"[Jarvis] Ajout de l'option Grilles tarifaires pour les compagnies",
+            p:"AD"
+          },
+          {
+            k:"RED-14953",
+            s:"[Jarvis] Drawer d'édition d'une company: Section Identité et profil",
+            p:"AD"
+          },
+          {
+            k:"RED-14952",
+            s:"[Jarvis] Drawer d'édition d'une company: Section Contact référent",
+            p:"AD"
+          },
+          {
+            k:"RED-15780",
+            s:"Affichage des modes configurés lors de l'édition d'une souscription",
+            p:"AD"
+          },
+          {
+            k:"RED-15781",
+            s:"Modification des modes de benchmark lors de l'édition d'une souscription",
+            p:"AD"
+          },
+          {
+            k:"RED-16890",
+            s:"Déploiement du nouveau dashboard interne Jarvis pour le chargeur",
+            p:"AD"
+          },
+          {
+            k:"RED-16894",
+            s:"Déploiement du nouveau dashboard interne Jarvis pour le transporteur",
+            p:"AD"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"GRILLE",
+    label:"Grille tarifaire",
+    color:"#3B6D11",
+    desc:"Rate cards, surcharges, calcul du prix, date d'effet, changelog",
+    subs:[
+      {
+        id:"s16",
+        name:"Rate Cards — Accès & droits",
+        tickets:[
+          {
+            k:"RED-17282",
+            s:"Vérifier que la section Rate Cards a été déplacée",
+            p:"AD"
+          },
+          {
+            k:"RED-17281",
+            s:"Accès direct à l'URL Rate Cards par un utilisateur non autorisé — bloqué",
+            p:"AD"
+          },
+          {
+            k:"RED-17280",
+            s:"Chargeur non-Connect : création de grille tarifaire non autorisée",
+            p:"AD"
+          },
+          {
+            k:"RED-17279",
+            s:"Absence de la section Rate Cards pour un utilisateur non-chargeur",
+            p:"AD"
+          },
+          {
+            k:"RED-17278",
+            s:"Affichage de la section Rate Cards dans l'onglet Shipper pour un chargeur Connect",
+            p:"AD"
+          },
+          {
+            k:"RED-17025",
+            s:"Icône error visible sur la card si des lignes tarifaires sont en erreur",
+            p:"AD"
+          }
+        ]
+      },
+      {
+        id:"s17",
+        name:"Surcharges & calcul du prix",
+        tickets:[
+          {
+            k:"RED-17212",
+            s:"Somme de plusieurs surcharges issues de la grille tarifaire",
+            p:"AD"
+          },
+          {
+            k:"RED-17211",
+            s:"Affichage du prix du transport — aucune surcharge applicable",
+            p:"AD"
+          },
+          {
+            k:"RED-17210",
+            s:"Affichage du prix du transport = prix de base + surcharge unique",
+            p:"AD"
+          },
+          {
+            k:"RED-17172",
+            s:"Suppressions des surcharges — transporteur sans grille tarifaire",
+            p:"AD"
+          },
+          {
+            k:"RED-17171",
+            s:"Mise à jour des surcharges — transporteur avec grille tarifaire",
+            p:"AD"
+          },
+          {
+            k:"RED-17268",
+            s:"Annulation avec frais : rayer surcharges et modifications tarifaires",
+            p:"AD"
+          },
+          {
+            k:"RED-17267",
+            s:"Annulation avec paiement dû : aucun changement dans la section prix",
+            p:"AD"
+          },
+          {
+            k:"RED-17261",
+            s:"Annulation sans frais : rayer surcharges, prix transport à 0",
+            p:"AD"
+          },
+          {
+            k:"RED-17205",
+            s:"Surcharges personnalisées — ajout, suppression, limites et validations",
+            p:"AD"
+          },
+          {
+            k:"RED-15616",
+            s:"La surcharge carburant par défaut est Pas de surcharge",
+            p:"AD"
+          }
+        ]
+      },
+      {
+        id:"s18",
+        name:"Édition drawer & date d'effet",
+        tickets:[
+          {
+            k:"RED-17163",
+            s:"Erreur serveur lors de la sauvegarde empêche la perte de données",
+            p:"AD"
+          },
+          {
+            k:"RED-17162",
+            s:"Date d'effet non renseignée déclenche une erreur obligatoire",
+            p:"AD"
+          },
+          {
+            k:"RED-17161",
+            s:"Refus d'une date d'effet dans le passé",
+            p:"AD"
+          },
+          {
+            k:"RED-17208",
+            s:"Suppression d'une grille tarifaire depuis le drawer de modification",
+            p:"AD"
+          },
+          {
+            k:"RED-17272",
+            s:"Créer un changelog company quand l'accès aux grilles tarifaires est activé",
+            p:"AD"
+          },
+          {
+            k:"RED-17271",
+            s:"Créer un changelog company quand l'accès aux grilles tarifaires est désactivé",
+            p:"AD"
+          },
+          {
+            k:"RED-17270",
+            s:"Ne pas créer de changelog si l'accès aux grilles tarifaires n'a pas changé",
+            p:"AD"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"ATLAS",
+    label:"Atlas",
+    color:"#533AB7",
+    desc:"Crédits individuels, sièges, requêtes, accès Atlas",
+    subs:[
+      {
+        id:"s19",
+        name:"Crédits & sièges",
+        tickets:[
+          {
+            k:"RED-17224",
+            s:"Un utilisateur sans seat ne peut pas envoyer de requêtes Atlas (0 crédits)",
+            p:"AD"
+          },
+          {
+            k:"RED-17223",
+            s:"Un utilisateur disposant d'un seat a un accès illimité aux requêtes Atlas",
+            p:"AD"
+          },
+          {
+            k:"RED-17222",
+            s:"Permettre de renseigner le nombre de sièges Atlas pour une company",
+            p:"AD"
+          },
+          {
+            k:"RED-17221",
+            s:"Chaque utilisateur d'une company sans accès Atlas dispose de 15 crédits individuels",
+            p:"AD"
+          },
+          {
+            k:"RED-17220",
+            s:"Ne pas afficher la consommation Atlas au niveau company lorsque l'accès Atlas est activé",
+            p:"AD"
+          },
+          {
+            k:"RED-16177",
+            s:"[Analytics] Ne pas activer le bouton connecter avec les identifiants admin",
+            p:"AD"
+          },
+          {
+            k:"RED-16176",
+            s:"[Analytics] Activer le bouton connecter uniquement avec identifiants valides",
+            p:"AD"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"AUTH",
+    label:"Authentification",
+    color:"#6941C6",
+    desc:"SSO, Inscription, Connexion, mot de passe, gestion de compte",
+    subs:[
+      {
+        id:"s20a",
+        name:"SSO",
+        tickets:[
+          {k:"RED-SSO001",s:"Login via SSO avec l'option inscription activée",p:"P0"},
+          {k:"RED-SSO002",s:"Activation de l'Option SSO sur la company",p:"P0"},
+          {k:"RED-SSO003",s:"Login via SSO : Deux user autre que admin",p:"P1"},
+          {k:"RED-SSO004",s:"Login via SSO : Reset password",p:"P1"},
+          {k:"RED-SSO005",s:"Invitation d'un user : intégrer le formulaire d'invitation",p:"P2"},
+          {k:"RED-SSO006",s:"Activation de l'Option SSO sur la Company : Modification du mot de passe et/ou adresse mail",p:"P2"},
+          {k:"RED-SSO007",s:"Annulation activation de l'Option SSO sur la company",p:"P2"},
+          {k:"RED-SSO008",s:"Invitation d'un user : Invitation d'un user avec sso actif",p:"P2"},
+          {k:"RED-SSO009",s:"Activation SSO : Deux user s'appartenant au même domaine et deux company différentes",p:"P3"},
+          {k:"RED-SSO010",s:"Activer l'Option SSO sur la Company : New tag onglet Paramètres SSO",p:"P3"},
+          {k:"RED-SSO011",s:"Login via SSO : inscription pour deux user du même domaine pour deux company différentes",p:"P3"},
+          {k:"RED-SSO012",s:"Activation SSO sur une company : Plusieurs admin dans une même company",p:"P3"},
+          {k:"RED-SSO013",s:"Activation Option SSO : Activation SSO par un user autre que l'admin",p:"P3"},
+          {k:"RED-SSO014",s:"Invitation d'un user : un user avec une adresse mail existante",p:"P3"},
+          {k:"RED-SSO015",s:"Activer l'Option SSO sur la Company : Paramètres SSO",p:"P4"}
+        ]
+      },
+      {
+        id:"s20b",
+        name:"Inscription",
+        tickets:[
+          {k:"RED-14144",s:"[Authentification][Inscription] Création d'un compte administrateur",p:"P0"},
+          {k:"RED-INS001",s:"Création d'un compte utilisateur",p:"P0"}
+        ]
+      },
+      {
+        id:"s20c",
+        name:"Connexion",
+        tickets:[
+          {k:"RED-2369",s:"Se connecter à son compte Upply",p:"P0"},
+          {k:"RED-2368",s:"Afficher la page de login",p:"P0"},
+          {k:"RED-2344",s:"Affichage du menu pour un utilisateur Smart",p:"P0"},
+          {k:"RED-13495",s:"[Authentification] Connexion avec un profil Connect",p:"P0"},
+          {k:"RED-2357",s:"Réinitialiser le mot de passe",p:"P1"},
+          {k:"RED-2356",s:"Envoyer le mail de réinitialisation de mot de passe",p:"P1"},
+          {k:"RED-2355",s:"Ouvrir la page de réinitialisation de mot de passe",p:"P1"},
+          {k:"RED-2358",s:"Griser le bouton Réinitialiser tant que les conditions minimales ne sont pas remplies",p:"P1"},
+          {k:"RED-2360",s:"Se connecter à son compte Upply avec le nouveau mot de passe",p:"P1"},
+          {k:"RED-9204",s:"Lien de réinitialisation du mot de passe expiré",p:"P1"},
+          {k:"RED-9205",s:"Lien de réinitialisation du mot de passe déjà utilisé",p:"P1"},
+          {k:"RED-2359",s:"Débloquer le bouton Réinitialiser",p:"P1"},
+          {k:"RED-11459",s:"Se déconnecter de ma session",p:"P2"},
+          {k:"RED-10365",s:"Empêcher la connexion si l'entreprise est désactivée",p:"P2"},
+          {k:"RED-10366",s:"Empêcher la connexion d'un utilisateur non validé par l'administrateur",p:"P2"},
+          {k:"RED-10363",s:"Empêcher la connexion d'un utilisateur inactif",p:"P2"},
+          {k:"RED-10362",s:"Empêcher la connexion d'un utilisateur non vérifié",p:"P2"},
+          {k:"RED-10360",s:"Affichage d'un message d'erreur lors de la connexion avec des identifiants incorrects",p:"P2"},
+          {k:"RED-10361",s:"Empêcher la connexion si les champs obligatoires ne sont pas remplis",p:"P2"},
+          {k:"RED-9541",s:"Affichage du wording en cas d'erreur système ou réseau lors de la réinitialisation",p:"P3"}
+        ]
+      }
+    ]
+  },
+  {
+    id:"MOBILE",
+    label:"Mobile",
+    color:"#993C1D",
+    desc:"Lots live & affrétés sur application mobile — iOS & Android",
+    subs:[
+      {
+        id:"s21",
+        name:"Lots live & affrétés",
+        tickets:[
+          {
+            k:"RED-13347",
+            s:"[Mobile] Afficher les informations Livraison d'un lot live",
+            p:"AD"
+          },
+          {
+            k:"RED-14700",
+            s:"Afficher la liste des lots sur mobile",
+            p:"AD"
+          },
+          {
+            k:"RED-14699",
+            s:"Afficher le détail d'un lot sur mobile",
+            p:"AD"
+          },
+          {
+            k:"RED-14698",
+            s:"Envoyer une offre depuis mobile",
+            p:"AD"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"EMAILS",
+    label:"Emails & Notifications",
+    color:"#0F6E56",
+    desc:"Emails automatiques transactionnels, centre de notifications",
+    subs:[
+      {
+        id:"s22",
+        name:"Emails automatiques",
+        tickets:[
+          {
+            k:"RED-4459",
+            s:"Envoyer un mail aux transporteurs favorites lors du poste d'un lot",
+            p:"P0"
+          },
+          {
+            k:"RED-4457",
+            s:"Envoyer un mail au transporteur et au chargeur — offre acceptée",
+            p:"P0"
+          },
+          {
+            k:"RED-4455",
+            s:"Envoyer un mail au transporteur — offre rejetée",
+            p:"P0"
+          },
+          {
+            k:"RED-4451",
+            s:"Envoyer un mail — lot affrété à d'autres conditions",
+            p:"P0"
+          },
+          {
+            k:"RED-3982",
+            s:"Envoyer le mail CAF au chargeur après l'affrètement d'un lot",
+            p:"P0"
+          }
+        ]
+      },
+      {
+        id:"s23",
+        name:"Centre de notifications",
+        tickets:[
+          {
+            k:"RED-7308",
+            s:"[Notification] Afficher l'infoBulle — Transporteur",
+            p:"P0"
+          },
+          {
+            k:"RED-7291",
+            s:"[Notification] Afficher l'infoBulle — Chargeur",
+            p:"P0"
+          },
+          {
+            k:"RED-7214",
+            s:"Centre de notification : Affichage des notifications",
+            p:"P2"
+          },
+          {
+            k:"RED-9202",
+            s:"Actions sur une notification depuis le centre",
+            p:"P2"
+          },
+          {
+            k:"RED-9200",
+            s:"Filtrer les notifications",
+            p:"P3"
+          },
+          {
+            k:"RED-7206",
+            s:"Intégrer une cloche des notifications dans le menu latéral",
+            p:"P3"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"SMARKET",
+    label:"Smarketplace",
+    color:"#854F0B",
+    desc:"Annuaire des transporteurs, profils, spécialités",
+    subs:[
+      {
+        id:"s24",
+        name:"Annuaire transporteurs",
+        tickets:[
+          {
+            k:"RED-14750",
+            s:"Rechercher un transporteur dans l'annuaire",
+            p:"AD"
+          },
+          {
+            k:"RED-14749",
+            s:"Afficher le profil d'un transporteur",
+            p:"AD"
+          },
+          {
+            k:"RED-14748",
+            s:"Filtrer les transporteurs par spécialité",
+            p:"AD"
+          }
+        ]
+      }
+    ]
+  }
+]
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let DATA=[];
+let GO={},SO={};
+
+function loadState(){
+  try{
+    const d=localStorage.getItem('qamap_data');
+    if(d)DATA=JSON.parse(d);
+    else DATA=JSON.parse(JSON.stringify(DEFAULT_DATA));
+    const o=localStorage.getItem('qamap_open');
+    if(o){const p=JSON.parse(o);GO=p.g||{};SO=p.s||{};}
+  }catch(e){DATA=JSON.parse(JSON.stringify(DEFAULT_DATA));}
+}
+
+function saveState(){
+  localStorage.setItem('qamap_data',JSON.stringify(DATA));
+  localStorage.setItem('qamap_open',JSON.stringify({g:GO,s:SO}));
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+function render(){
+  const q=(document.getElementById('s-text').value||'').toLowerCase().trim();
+  const fp=document.getElementById('s-prio').value;
+  const fa=document.getElementById('s-auto').value;
+  const fg=document.getElementById('s-grp').value;
+  const root=document.getElementById('root');
+
+  let totalAll=0,autoAll=0,manAll=0,matchCount=0;
+  DATA.forEach(g=>{
+    g.subs.forEach(sub=>{
+      sub.tickets.forEach(t=>{
+        totalAll++;
+        if(AUTO_SET.has(t.k)||t.manualAuto==='auto')autoAll++;else manAll++;
+      });
+    });
+  });
+  document.getElementById('kpi-total').textContent=totalAll.toLocaleString('fr');
+  document.getElementById('kpi-auto').textContent=autoAll.toLocaleString('fr');
+  document.getElementById('kpi-man').textContent=manAll.toLocaleString('fr');
+
+  const grps=fg?DATA.filter(g=>g.id===fg):DATA;
+  let html='';
+
+  grps.forEach(g=>{
+    const open=GO[g.id];
+    const gtot=g.subs.reduce((s,sub)=>s+sub.tickets.length,0);
+    const gauto=g.subs.reduce((s,sub)=>s+sub.tickets.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto').length,0);
+    html+=`<div class="grp" id="grp-${g.id}">
+      <div class="grp-h" onclick="toggleG('${g.id}')">
+        <div class="grp-accent" style="background:${g.color}"></div>
+        <div class="grp-info">
+          <div class="grp-name">${g.label}</div>
+          <div class="grp-desc">${g.desc}</div>
+        </div>
+        <div class="grp-pills">
+          <span class="pill pill-t">${gtot} tests</span>
+          <span class="pill pill-a">⚙ ${gauto} auto</span>
+          <span class="pill pill-m">✎ ${gtot-gauto} manuels</span>
+        </div>
+        <span class="grp-chev${open?' open':''}">▾</span>
+      </div>
+      <div class="grp-prog"><div class="grp-prog-fill" style="width:${gtot?Math.round(gauto/gtot*100):0}%;background:${g.color}"></div></div>
+      <div class="grp-body${open?' open':''}">`;
+
+    if(open){
+      g.subs.forEach(sub=>{
+        const sk=g.id+'|'+sub.id;
+        const subopen=SO[sk];
+        const stot=sub.tickets.length;
+        const sauto=sub.tickets.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto').length;
+
+        html+=`<div class="sub">
+          <div class="sub-h" onclick="toggleS('${sk}')">
+            <span class="sub-icon" style="color:${g.color}">📁</span>
+            <span class="sub-name">${sub.name}</span>
+            <span class="sub-meta">${stot} tests · ${sauto} auto</span>
+            <span class="sub-chev${subopen?' open':''}">▾</span>
+          </div>
+          <div class="sub-body${subopen?' open':''}">
+            <div class="pcols">`;
+
+        PRIOS.forEach(p=>{
+          let tks=sub.tickets.filter(t=>t.p===p);
+          if(q)tks=tks.filter(t=>t.k.toLowerCase().includes(q)||t.s.toLowerCase().includes(q));
+          if(fa==='auto')tks=tks.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto');
+          if(fa==='man')tks=tks.filter(t=>!AUTO_SET.has(t.k)&&t.manualAuto!=='auto');
+          const show=!fp||fp===p;
+          matchCount+=tks.length;
+
+          html+=`<div class="pcol${show?'':' hidden'}" 
+            ondragover="event.preventDefault();this.classList.add('drag-over')" 
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="dropTicket(event,'${g.id}','${sub.id}','${p}')">
+            <div class="ph ${PRIO_CSS[p]}">
+              ${PRIO_LABELS[p]}<span class="ph-count">(${sub.tickets.filter(t=>t.p===p).length})</span>
+            </div>
+            <div class="tc">`;
+
+          if(!tks.length){
+            html+=`<div class="empty">—</div>`;
+          } else {
+            const shown=tks.slice(0,6);
+            shown.forEach(t=>{
+              const isAuto=AUTO_SET.has(t.k)||t.manualAuto==='auto';
+              html+=`<div class="tk" draggable="true" 
+                ondragstart="dragStart(event,'${g.id}','${sub.id}','${t.k}')"
+                id="tk-${t.k}">
+                <div class="tk-bar ${isAuto?'tk-auto':'tk-man'}"></div>
+                <div class="tk-body">
+                  <div class="tk-top">
+                    <a class="tk-key" href="${JU}${t.k}" target="_blank">${t.k}</a>
+                    <span class="${isAuto?'tk-auto-badge':'tk-man-badge'}" 
+                      onclick="toggleAutoStatus('${g.id}','${sub.id}','${t.k}',event)"
+                      title="Cliquer pour changer le statut">
+                      ${isAuto?'⚙ Auto':'✎ Manuel'}
+                    </span>
+                    <div class="prio-pick">
+                      <button class="prio-pick-btn" style="color:${PRIO_COLORS[t.p]};background:${PRIO_BG[t.p]}"
+                        onclick="togglePrioPick(event,'pick-${g.id}-${sub.id}-${t.k.replace(/-/g,'_')}')">
+                        ${PRIO_LABELS[t.p]} ▾
+                      </button>
+                      <div class="prio-drop" id="pick-${g.id}-${sub.id}-${t.k.replace(/-/g,'_')}">
+                        ${PRIOS.map(op=>`<div class="prio-opt" onclick="changePrio('${g.id}','${sub.id}','${t.k}','${op}',event)">
+                          <div class="prio-dot" style="background:${PRIO_BG[op]};border:1px solid ${PRIO_COLORS[op]}"></div>
+                          <span style="color:${PRIO_COLORS[op]}">${PRIO_LABELS[op]}</span>
+                        </div>`).join('')}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tk-title">${t.s}</div>
+                </div>
+                <div class="tk-actions">
+                  <button class="tk-btn del" onclick="deleteTicket('${g.id}','${sub.id}','${t.k}',event)" title="Supprimer">✕</button>
+                </div>
+              </div>`;
+            });
+            if(tks.length>6)html+=`<div class="more-btn" onclick="showMore('${g.id}','${sub.id}','${p}')">+ ${tks.length-6} autres…</div>`;
+          }
+
+          html+=`<button class="add-ticket-btn" onclick="openAddTicket('${g.id}','${sub.id}','${p}')">+ Ajouter un ticket</button>`;
+          html+=`</div></div>`;
+        });
+
+        const jq=encodeURIComponent(`project = RED AND issuetype = Test AND text ~ "${sub.name}"`);
+        html+=`</div>
+          <div class="sub-footer">
+            <a class="jira-link" href="https://upply1.atlassian.net/issues/?jql=${jq}" target="_blank">🔗 Voir dans Jira Xray</a>
+          </div>
+        </div></div>`;
+      });
+
+      html+=`<button class="add-sub-btn" onclick="openAddSub('${g.id}')">+ Ajouter un sous-thème</button>`;
+    }
+
+    html+=`</div></div>`;
+  });
+
+  root.innerHTML=html;
+  if(q||fp||fa||fg)document.getElementById('rc').textContent=`${matchCount} résultat(s)`;
+  else document.getElementById('rc').textContent='';
+
+  // Close prio drops on outside click
+  document.onclick=function(e){
+    if(!e.target.closest('.prio-pick'))document.querySelectorAll('.prio-drop.open').forEach(d=>d.classList.remove('open'));
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOGGLE
+// ═══════════════════════════════════════════════════════════
+function toggleG(id){GO[id]=!GO[id];saveState();render();}
+function toggleS(sk){SO[sk]=!SO[sk];saveState();render();}
+function expandAll(v){
+  DATA.forEach(g=>{
+    GO[g.id]=v;
+    g.subs.forEach(s=>{SO[g.id+'|'+s.id]=v;});
+  });
+  saveState();render();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PRIO CHANGE
+// ═══════════════════════════════════════════════════════════
+function togglePrioPick(e,id){
+  e.stopPropagation();
+  document.querySelectorAll('.prio-drop.open').forEach(d=>{if(d.id!==id)d.classList.remove('open');});
+  document.getElementById(id)?.classList.toggle('open');
+}
+
+function changePrio(gid,sid,key,newP,e){
+  e.stopPropagation();
+  const g=DATA.find(x=>x.id===gid);
+  const sub=g?.subs.find(s=>s.id===sid);
+  const t=sub?.tickets.find(t=>t.k===key);
+  if(t){t.p=newP;saveState();render();toast(`${key} déplacé en ${PRIO_LABELS[newP]}`);}
+}
+
+// ═══════════════════════════════════════════════════════════
+// AUTO STATUS TOGGLE
+// ═══════════════════════════════════════════════════════════
+function toggleAutoStatus(gid,sid,key,e){
+  e.stopPropagation();
+  const g=DATA.find(x=>x.id===gid);
+  const sub=g?.subs.find(s=>s.id===sid);
+  const t=sub?.tickets.find(t=>t.k===key);
+  if(!t)return;
+  if(AUTO_SET.has(t.k)){
+    // ticket natif Jira — on override localement
+    t.manualAuto=t.manualAuto==='man'?undefined:'man';
+  } else {
+    t.manualAuto=t.manualAuto==='auto'?undefined:'auto';
+  }
+  saveState();render();
+  toast(`${key} → ${(AUTO_SET.has(t.k)&&t.manualAuto!=='man')||t.manualAuto==='auto'?'Automatisé':'Manuel'}`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// ADD TICKET
+// ═══════════════════════════════════════════════════════════
+function openAddTicket(gid,sid,p){
+  _ctx={gid,sid,p};
+  document.getElementById('tk-key').value='RED-';
+  document.getElementById('tk-title').value='';
+  document.getElementById('tk-prio').value=p;
+  document.getElementById('tk-auto').value='man';
+  document.getElementById('modal-tk-title').textContent=`Ajouter un ticket — ${PRIO_LABELS[p]}`;
+  openModal('modal-tk');
+}
+
+function confirmAddTicket(){
+  const key=document.getElementById('tk-key').value.trim().toUpperCase();
+  const title=document.getElementById('tk-title').value.trim();
+  const p=document.getElementById('tk-prio').value;
+  const a=document.getElementById('tk-auto').value;
+  if(!key.match(/^RED-\d+$/)){alert('Clé invalide. Format : RED-1234');return;}
+  if(!title){alert('Le titre est obligatoire');return;}
+  const g=DATA.find(x=>x.id===_ctx.gid);
+  const sub=g?.subs.find(s=>s.id===_ctx.sid);
+  if(!sub)return;
+  if(sub.tickets.find(t=>t.k===key)){alert('Ce ticket est déjà dans ce sous-thème');return;}
+  const newT={k:key,s:title,p};
+  if(a==='auto')newT.manualAuto='auto';
+  sub.tickets.push(newT);
+  saveState();closeModal('modal-tk');render();
+  toast(`${key} ajouté`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// DELETE TICKET
+// ═══════════════════════════════════════════════════════════
+function deleteTicket(gid,sid,key,e){
+  e.stopPropagation();
+  if(!confirm(`Supprimer ${key} de ce sous-thème ?`))return;
+  const g=DATA.find(x=>x.id===gid);
+  const sub=g?.subs.find(s=>s.id===sid);
+  if(!sub)return;
+  sub.tickets=sub.tickets.filter(t=>t.k!==key);
+  saveState();render();toast(`${key} supprimé`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// DRAG & DROP (déplacer entre colonnes)
+// ═══════════════════════════════════════════════════════════
+let _drag={};
+function dragStart(e,gid,sid,key){
+  _drag={gid,sid,key};
+  e.dataTransfer.effectAllowed='move';
+}
+function dropTicket(e,toGid,toSid,toP){
+  e.preventDefault();
+  document.querySelectorAll('.pcol.drag-over').forEach(el=>el.classList.remove('drag-over'));
+  const {gid,sid,key}=_drag;
+  if(!key)return;
+  const fromG=DATA.find(x=>x.id===gid);
+  const fromSub=fromG?.subs.find(s=>s.id===sid);
+  const t=fromSub?.tickets.find(t=>t.k===key);
+  if(!t)return;
+
+  if(gid===toGid&&sid===toSid){
+    // Même sous-thème — juste changer la prio
+    t.p=toP;
+    saveState();render();
+    toast(`${key} → ${PRIO_LABELS[toP]}`);
+  } else {
+    // Déplacer vers un autre sous-thème
+    fromSub.tickets=fromSub.tickets.filter(x=>x.k!==key);
+    t.p=toP;
+    const toG=DATA.find(x=>x.id===toGid);
+    const toSub=toG?.subs.find(s=>s.id===toSid);
+    if(toSub){
+      toSub.tickets.push(t);
+      saveState();render();
+      toast(`${key} déplacé`);
+    }
+  }
+  _drag={};
+}
+
+// ═══════════════════════════════════════════════════════════
+// ADD GROUP / SUB
+// ═══════════════════════════════════════════════════════════
+function openAddGroup(){
+  document.getElementById('grp-name').value='';
+  document.getElementById('grp-desc').value='';
+  openModal('modal-grp');
+}
+function confirmAddGroup(){
+  const name=document.getElementById('grp-name').value.trim();
+  const desc=document.getElementById('grp-desc').value.trim();
+  const color=document.getElementById('grp-color').value;
+  if(!name){alert('Le nom est obligatoire');return;}
+  const id='GRP_'+Date.now();
+  DATA.push({id,label:name,color,desc,subs:[]});
+  saveState();closeModal('modal-grp');render();
+  toast(`Groupe "${name}" créé`);
+}
+
+function openAddSub(gid){
+  _ctx={gid};
+  document.getElementById('sub-name').value='';
+  openModal('modal-sub');
+}
+function confirmAddSub(){
+  const name=document.getElementById('sub-name').value.trim();
+  if(!name){alert('Le nom est obligatoire');return;}
+  const g=DATA.find(x=>x.id===_ctx.gid);
+  if(!g)return;
+  const id='sub_'+Date.now();
+  g.subs.push({id,name,tickets:[]});
+  saveState();closeModal('modal-sub');render();
+  toast(`Sous-thème "${name}" créé`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SHOW MORE
+// ═══════════════════════════════════════════════════════════
+function showMore(gid,sid,p){
+  const g=DATA.find(x=>x.id===gid);
+  const sub=g?.subs.find(s=>s.id===sid);
+  if(!sub)return;
+  const tks=sub.tickets.filter(t=>t.p===p);
+  alert(`${PRIO_LABELS[p]} — ${sub.name}\n\n${tks.map(t=>t.k+' — '+t.s).join('\n')}`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════════
+function exportData(){
+  const json=JSON.stringify(DATA,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='cartographie_qa_RED_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  toast('Export JSON téléchargé');
+}
+function importData(){
+  document.getElementById('import-json').value='';
+  openModal('modal-import');
+}
+function confirmImport(){
+  try{
+    const d=JSON.parse(document.getElementById('import-json').value);
+    if(!Array.isArray(d))throw new Error('Format invalide');
+    DATA=d;saveState();closeModal('modal-import');render();
+    toast('Import réussi — '+d.length+' groupes chargés');
+  }catch(e){alert('JSON invalide : '+e.message);}
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL HELPERS
+// ═══════════════════════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-bg').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
+});
+
+// ═══════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════
+let _toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+loadState();
+(function initGroupFilter(){
+  const sel=document.getElementById('s-grp');
+  DATA.forEach(g=>{const o=document.createElement('option');o.value=g.id;o.textContent=g.label;sel.appendChild(o);});
+})();
+render();
+</script>
+</body>
+</html>

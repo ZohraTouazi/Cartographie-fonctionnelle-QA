@@ -1084,7 +1084,7 @@ const DEFAULT_DATA=[
           {
             k:"RED-12236",
             s:"Benchmark Routier EMEA - Camion incomplet",
-            p:"P2"
+            p:"P4"
           },
           {
             k:"RED-8919",
@@ -1094,17 +1094,17 @@ const DEFAULT_DATA=[
           {
             k:"RED-8076",
             s:"Faire un Benchmark Origine = Destination",
-            p:"P2"
+            p:"P4"
           },
           {
             k:"RED-10402",
             s:"[Maritime FAK] Affichage des onglets Benchmark Maritime et Maritime FAK",
-            p:"P2"
+            p:"P4"
           },
           {
             k:"RED-10403",
             s:"[Maritime FAK] Vérification des champs du formulaire",
-            p:"P2"
+            p:"P4"
           },
           {
             k:"RED-9400",
@@ -1129,7 +1129,7 @@ const DEFAULT_DATA=[
           {
             k:"RED-12189",
             s:"Benchmark Routier Nord Am",
-            p:"P4"
+            p:"P0"
           },
           {
             k:"RED-10589",
@@ -1139,6 +1139,46 @@ const DEFAULT_DATA=[
           {
             k:"RED-10581",
             s:"[Maritime - FAK] Edit du formulaire depuis le header Benchmark",
+            p:"P2"
+          },
+          {
+            k:"RED-10588",
+            s:"Export PDF Historical view",
+            p:"P1"
+          },
+          {
+            k:"RED-12326",
+            s:"Résultat Benchmark : Onglet Méthodologie",
+            p:"P1"
+          },
+          {
+            k:"RED-2508",
+            s:"Affichage du Median Price dans l'export PDF/XLS pour un Benchmark",
+            p:"P2"
+          },
+          {
+            k:"RED-2505",
+            s:"Affichage des valeurs Basse-Haute et Min-Max dans l'export XLS pour un Benchmark",
+            p:"P2"
+          },
+          {
+            k:"RED-2413",
+            s:"Affichage des valeurs Basse-Haute et Min-Max dans l'export PDF pour un Benchmark",
+            p:"P2"
+          },
+          {
+            k:"RED-6918",
+            s:"Benchmark & Smartscan : Critères de consommations",
+            p:"P2"
+          },
+          {
+            k:"RED-10539",
+            s:"[Maritime FAK] Historique : Affichage des prix en fonction de la devise",
+            p:"P3"
+          },
+          {
+            k:"RED-10404",
+            s:"[Maritime FAK] Vérification du lien ici et mise à jour dynamique du prix",
             p:"P4"
           }
         ]
@@ -1150,27 +1190,27 @@ const DEFAULT_DATA=[
           {
             k:"RED-11055",
             s:"[SmartScan Unique] Création d'un rapport",
-            p:"P1"
+            p:"P0"
           },
           {
             k:"RED-11075",
             s:"[SMARTSCAN RECURRENT] Création d'un rapport Récurrent",
-            p:"P1"
+            p:"P0"
           },
           {
             k:"RED-2352",
             s:"[SmartScan Unique] Blocage des Smartscan",
-            p:"P2"
+            p:"P1"
           },
           {
             k:"RED-11188",
             s:"[Smartscan Unique] Ajout une modale scan: Bloqué, Annulé et Non généré",
-            p:"P2"
+            p:"P4"
           },
           {
             k:"RED-9547",
             s:"[SmartScan Unique] Header de la page Smartscan",
-            p:"P3"
+            p:"P2"
           },
           {
             k:"RED-10350",
@@ -1185,16 +1225,71 @@ const DEFAULT_DATA=[
           {
             k:"RED-11088",
             s:"[SMARTSCAN RECURRENT] Liste des rapports récurrents",
-            p:"P4"
+            p:"P1"
           },
           {
             k:"RED-11071",
             s:"[SMARTSCAN RECURRENT] Configuration des paramètres de récurrence",
-            p:"P4"
+            p:"P1"
           },
           {
             k:"RED-11087",
             s:"[SMARTSCAN RECURRENT] Affichage des récurrences sur le rapport parent",
+            p:"P3"
+          },
+          {
+            k:"RED-11126",
+            s:"[SMARTSCAN RECURRENT] Statut des rapports enfants",
+            p:"P2"
+          },
+          {
+            k:"RED-11093",
+            s:"[SMARTSCAN RECURRENT] Accordéon pour dépiler les rapports enfants d'un récurrence",
+            p:"P2"
+          },
+          {
+            k:"RED-11073",
+            s:"[SMARTSCAN RECURRENT] Import d'un fichier conforme",
+            p:"P2"
+          },
+          {
+            k:"RED-11107",
+            s:"[SMARTSCAN RECURRENT] Recherche dynamique sur la liste des rapports récurrents",
+            p:"P3"
+          },
+          {
+            k:"RED-11086",
+            s:"[SMARTSCAN RECURRENT] Affichage du Statut Bloqué sur le rapport parent",
+            p:"P3"
+          },
+          {
+            k:"RED-11099",
+            s:"[SMARTSCAN RECURRENT] Suppression des récurrences et des rapports enfants",
+            p:"P3"
+          },
+          {
+            k:"RED-11095",
+            s:"[SMARTSCAN RECURRENT] Affichage au survol d'une récurrence",
+            p:"P4"
+          },
+          {
+            k:"RED-11092",
+            s:"[SMARTSCAN RECURRENT] Affichage de la date de génération des rapports et tri",
+            p:"P4"
+          },
+          {
+            k:"RED-11104",
+            s:"[SMARTSCAN RECURRENT] Application de filtres sur la liste des rapports récurrents",
+            p:"P4"
+          },
+          {
+            k:"RED-11084",
+            s:"[SMARTSCAN RECURRENT] Affichage de Nom du Template sur le rapport parent",
+            p:"P4"
+          },
+          {
+            k:"RED-11052",
+            s:"[SMARTSCAN RECURRENT] Affichage des icônes selon le mode de transport",
             p:"P4"
           }
         ]
@@ -1206,51 +1301,96 @@ const DEFAULT_DATA=[
           {
             k:"RED-7820",
             s:"Afficher la page des UFIs",
-            p:"P3"
+            p:"P0"
           },
           {
             k:"RED-7949",
             s:"Vérification des blocs Évolutions et Prévisions sur le détail d'un UFI",
-            p:"P3"
+            p:"P0"
           },
           {
             k:"RED-8293",
             s:"Ajout option Export sur le détail des UFIs",
-            p:"P3"
+            p:"P0"
           },
           {
             k:"RED-8644",
             s:"Vérifier la comparaison des UFIs",
-            p:"P3"
+            p:"P1"
           },
           {
             k:"RED-8635",
             s:"UFI_Page détail de comparaison des UFIs",
-            p:"P3"
+            p:"P1"
           },
           {
             k:"RED-7822",
             s:"Sélection des UFIs",
-            p:"P4"
+            p:"P3"
           },
           {
             k:"RED-7865",
             s:"Filtrer la liste des UFIs",
-            p:"P4"
+            p:"P3"
           },
           {
             k:"RED-8605",
             s:"Gestion du bouton Comparer dans la liste des UFIs",
-            p:"P4"
+            p:"P2"
           },
           {
             k:"RED-9042",
             s:"UFI_Modifier la base 100",
-            p:"P4"
+            p:"P3"
           },
           {
             k:"RED-8779",
             s:"UFI_Filtre favori",
+            p:"P4"
+          },
+          {
+            k:"RED-8637",
+            s:"Export des UFIs comparés",
+            p:"P1"
+          },
+          {
+            k:"RED-5242",
+            s:"Bloquer l'export des UFI pour certains packages",
+            p:"P2"
+          },
+          {
+            k:"RED-8079",
+            s:"Création du bloc Evolution Détaillée d'un UFI",
+            p:"P2"
+          },
+          {
+            k:"RED-9482",
+            s:"Modifier la référence base 100 via la liste des UFIs",
+            p:"P3"
+          },
+          {
+            k:"RED-9233",
+            s:"Smart_Export des UFIs sélectionnés",
+            p:"P3"
+          },
+          {
+            k:"RED-9483",
+            s:"Persistance de la nouvelle référence base 100 à travers les actions de navigation",
+            p:"P3"
+          },
+          {
+            k:"RED-8714",
+            s:"UFI_Tri par défaut + Favori",
+            p:"P4"
+          },
+          {
+            k:"RED-8629",
+            s:"UFI_Persistence des filtres",
+            p:"P4"
+          },
+          {
+            k:"RED-9486",
+            s:"Comportement du calendrier de Référence base 100",
             p:"P4"
           }
         ]

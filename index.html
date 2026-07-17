@@ -188,6 +188,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 @media(max-width:1000px){.pcols{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.pcols{grid-template-columns:repeat(2,1fr)}.kpi-bar{flex-wrap:wrap}.kpi{border-right:none;margin-right:0;padding-right:16px}}
 @media print{.toolbar,.header-btns,.tk-actions,.add-ticket-btn,.add-sub-btn{display:none!important}.grp-body,.sub-body{display:block!important}}
+
+/* ── HEATMAP BAR ── */
+.heatmap{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:6px;gap:1px}
+.hm-seg{height:100%;border-radius:1px;transition:width .3s}
+.hm-p0{background:var(--p0)}
+.hm-p1{background:var(--p1)}
+.hm-p2{background:var(--p2)}
+.hm-p3{background:var(--p3)}
+.hm-p4{background:var(--p4)}
+.hm-ad{background:#CCC}
+
+/* ── RAPPORT ── */
+.rapport-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.rapport-overlay.open{display:flex}
+.rapport-content{background:#fff;border-radius:8px;width:100%;max-width:900px;padding:32px;margin:auto}
+.rapport-content h1{font-size:20px;font-weight:700;margin-bottom:4px}
+.rapport-content h2{font-size:14px;font-weight:600;margin:20px 0 8px;padding-bottom:4px;border-bottom:2px solid #E4E4E0}
+.rapport-meta{font-size:12px;color:#888;margin-bottom:20px}
+.rapport-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.rapport-kpi{background:#F7F7F5;border-radius:6px;padding:12px;text-align:center}
+.rapport-kpi-n{font-size:24px;font-weight:700}
+.rapport-kpi-l{font-size:11px;color:#888;margin-top:2px}
+.rapport-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
+.rapport-table th{background:#F0F0EE;padding:7px 10px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+.rapport-table td{padding:6px 10px;border-bottom:1px solid #F0F0EE}
+.rapport-table tr:last-child td{border-bottom:none}
+.rapport-ad-section{background:#FFF8E6;border:1px solid #F0CC88;border-radius:6px;padding:12px;margin-bottom:8px}
+.rapport-ad-title{font-size:12px;font-weight:600;color:#6B3A00;margin-bottom:8px}
+.rapport-ad-item{font-size:11px;color:#555;padding:2px 0}
+.rapport-close-btn{position:sticky;bottom:16px;float:right;margin-top:16px}
+@media print{
+  .rapport-overlay{position:static;padding:0;background:none}
+  .rapport-content{box-shadow:none;padding:16px}
+  .rapport-close-btn,.hbtn{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -201,9 +236,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <button class="hbtn" onclick="expandAll(true)">Tout déplier</button>
     <button class="hbtn" onclick="expandAll(false)">Tout replier</button>
     <button class="hbtn" onclick="openAddGroup()">+ Groupe</button>
+    <button class="hbtn" onclick="genRapport()">📊 Rapport</button>
     <button class="hbtn primary" onclick="exportData()">Exporter JSON</button>
     <button class="hbtn" onclick="importData()">Importer JSON</button>
-    <button class="hbtn" onclick="window.print()">Imprimer</button>
   </div>
 </div>
 
@@ -223,8 +258,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <option value="P2">P2 — Normal</option>
     <option value="P3">P3 — Mineur</option>
     <option value="P4">P4 — Régression</option>
-    <option value="AD">À définir</option>
+    <option value="AD">⚠ À définir</option>
   </select>
+  <button class="hbtn" id="btn-ad" onclick="filterAD()" title="Voir tous les tickets sans priorité">⚠ À définir seulement</button>
   <select id="s-auto" onchange="render()">
     <option value="">Auto + Manuel</option>
     <option value="auto">Automatisés</option>
@@ -315,6 +351,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   </div>
 </div>
 
+
+<!-- Rapport -->
+<div class="rapport-overlay" id="rapport-overlay" onclick="if(event.target===this)closeRapport()">
+  <div class="rapport-content" id="rapport-body"></div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1398,136 +1439,286 @@ const DEFAULT_DATA=[
     ]
   },
   {
-    id:"JARVIS",
-    label:"Jarvis",
-    color:"#0C447C",
-    desc:"Facturation, billing, comptes shippers, dashboard interne",
+    id:"AUTH",
+    label:"Authentification",
+    color:"#6941C6",
+    desc:"SSO, Inscription, Connexion, mot de passe, gestion de compte",
     subs:[
       {
-        id:"s13",
-        name:"Billing & comptes shippers",
+        id:"s20a",
+        name:"SSO",
         tickets:[
           {
-            k:"RED-17031",
-            s:"[Billing] Voir la liste des comptes shippers dans Jarvis",
-            p:"AD"
+            k:"RED-SSO001",
+            s:"Login via SSO avec l'option inscription activée",
+            p:"P0"
           },
           {
-            k:"RED-17032",
-            s:"[Billing] Modifier les informations d'un compte shipper existant",
-            p:"AD"
+            k:"RED-SSO002",
+            s:"Activation de l'Option SSO sur la company",
+            p:"P0"
           },
           {
-            k:"RED-17033",
-            s:"[Billing] Créer un compte shipper sans accès Jarvis",
-            p:"AD"
+            k:"RED-SSO003",
+            s:"Login via SSO : Deux user autre que admin",
+            p:"P1"
           },
           {
-            k:"RED-17034",
-            s:"[Billing] Créer un compte shipper avec accès Jarvis activé",
-            p:"AD"
+            k:"RED-SSO004",
+            s:"Login via SSO : Reset password",
+            p:"P1"
           },
           {
-            k:"RED-17037",
-            s:"[Billing] Activer l'accès Jarvis d'un compte shipper",
-            p:"AD"
+            k:"RED-SSO005",
+            s:"Invitation d'un user : intégrer le formulaire d'invitation",
+            p:"P2"
           },
           {
-            k:"RED-17038",
-            s:"[Billing] Désactiver l'accès Jarvis d'un compte shipper",
-            p:"AD"
+            k:"RED-SSO006",
+            s:"Activation de l'Option SSO sur la Company : Modification du mot de passe et/ou adresse mail",
+            p:"P2"
           },
           {
-            k:"RED-16228",
-            s:"Ouvrir la modale d'édition des informations de facturation",
-            p:"AD"
+            k:"RED-SSO007",
+            s:"Annulation activation de l'Option SSO sur la company",
+            p:"P2"
           },
           {
-            k:"RED-16229",
-            s:"Pré-remplir les champs dans la modale d'édition",
-            p:"AD"
+            k:"RED-SSO008",
+            s:"Invitation d'un user : Invitation d'un user avec sso actif",
+            p:"P2"
           },
           {
-            k:"RED-16230",
-            s:"Sauvegarder les modifications des informations de facturation",
-            p:"AD"
+            k:"RED-SSO009",
+            s:"Activation SSO : Deux user s'appartenant au même domaine et deux company différentes",
+            p:"P3"
+          },
+          {
+            k:"RED-SSO010",
+            s:"Activer l'Option SSO sur la Company : New tag onglet Paramètres SSO",
+            p:"P3"
+          },
+          {
+            k:"RED-SSO011",
+            s:"Login via SSO : inscription pour deux user du même domaine pour deux company différentes",
+            p:"P3"
+          },
+          {
+            k:"RED-SSO012",
+            s:"Activation SSO sur une company : Plusieurs admin dans une même company",
+            p:"P3"
+          },
+          {
+            k:"RED-SSO013",
+            s:"Activation Option SSO : Activation SSO par un user autre que l'admin",
+            p:"P3"
+          },
+          {
+            k:"RED-SSO014",
+            s:"Invitation d'un user : un user avec une adresse mail existante",
+            p:"P3"
+          },
+          {
+            k:"RED-SSO015",
+            s:"Activer l'Option SSO sur la Company : Paramètres SSO",
+            p:"P4"
           }
         ]
       },
       {
-        id:"s14",
-        name:"Mode facturation & bascule",
+        id:"s20b",
+        name:"Inscription",
         tickets:[
           {
-            k:"RED-17198",
-            s:"Confirmation d'un changement de mode et mise à jour de la brique",
-            p:"AD"
+            k:"RED-14144",
+            s:"[Authentification][Inscription] Création d'un compte administrateur",
+            p:"P0"
           },
           {
-            k:"RED-17193",
-            s:"Initialisation du mode par défaut — compte créé avant la mise en production",
-            p:"AD"
-          },
-          {
-            k:"RED-17194",
-            s:"Initialisation du mode par défaut — compte créé après la mise en production",
-            p:"AD"
-          },
-          {
-            k:"RED-17160",
-            s:"Bascule CHARGEUR vers UPPLY : lots publiés avant/après la date d'effet",
-            p:"AD"
-          },
-          {
-            k:"RED-17159",
-            s:"Bascule UPPLY vers CHARGEUR : lots publiés avant/après la date d'effet",
-            p:"AD"
-          },
-          {
-            k:"RED-16201",
-            s:"Ouvrir la modale d'édition de facturation",
-            p:"AD"
+            k:"RED-INS001",
+            s:"Création d'un compte utilisateur",
+            p:"P0"
           }
         ]
       },
       {
-        id:"s15",
-        name:"Comptes & souscriptions",
+        id:"s20c",
+        name:"Connexion",
         tickets:[
           {
-            k:"RED-15628",
-            s:"[Jarvis] Ajout de l'option Grilles tarifaires pour les compagnies",
-            p:"AD"
+            k:"RED-2369",
+            s:"Se connecter à son compte Upply",
+            p:"P0"
           },
           {
-            k:"RED-14953",
-            s:"[Jarvis] Drawer d'édition d'une company: Section Identité et profil",
-            p:"AD"
+            k:"RED-2368",
+            s:"Afficher la page de login",
+            p:"P0"
           },
           {
-            k:"RED-14952",
-            s:"[Jarvis] Drawer d'édition d'une company: Section Contact référent",
-            p:"AD"
+            k:"RED-2344",
+            s:"Affichage du menu pour un utilisateur Smart",
+            p:"P0"
           },
           {
-            k:"RED-15780",
-            s:"Affichage des modes configurés lors de l'édition d'une souscription",
-            p:"AD"
+            k:"RED-13495",
+            s:"[Authentification] Connexion avec un profil Connect",
+            p:"P0"
           },
           {
-            k:"RED-15781",
-            s:"Modification des modes de benchmark lors de l'édition d'une souscription",
-            p:"AD"
+            k:"RED-2357",
+            s:"Réinitialiser le mot de passe",
+            p:"P1"
           },
           {
-            k:"RED-16890",
-            s:"Déploiement du nouveau dashboard interne Jarvis pour le chargeur",
-            p:"AD"
+            k:"RED-2356",
+            s:"Envoyer le mail de réinitialisation de mot de passe",
+            p:"P1"
           },
           {
-            k:"RED-16894",
-            s:"Déploiement du nouveau dashboard interne Jarvis pour le transporteur",
-            p:"AD"
+            k:"RED-2355",
+            s:"Ouvrir la page de réinitialisation de mot de passe",
+            p:"P1"
+          },
+          {
+            k:"RED-2358",
+            s:"Griser le bouton Réinitialiser tant que les conditions minimales ne sont pas remplies",
+            p:"P1"
+          },
+          {
+            k:"RED-2360",
+            s:"Se connecter à son compte Upply avec le nouveau mot de passe",
+            p:"P1"
+          },
+          {
+            k:"RED-9204",
+            s:"Lien de réinitialisation du mot de passe expiré",
+            p:"P1"
+          },
+          {
+            k:"RED-9205",
+            s:"Lien de réinitialisation du mot de passe déjà utilisé",
+            p:"P1"
+          },
+          {
+            k:"RED-2359",
+            s:"Débloquer le bouton Réinitialiser",
+            p:"P1"
+          },
+          {
+            k:"RED-11459",
+            s:"Se déconnecter de ma session",
+            p:"P2"
+          },
+          {
+            k:"RED-10365",
+            s:"Empêcher la connexion si l'entreprise est désactivée",
+            p:"P2"
+          },
+          {
+            k:"RED-10366",
+            s:"Empêcher la connexion d'un utilisateur non validé par l'administrateur",
+            p:"P2"
+          },
+          {
+            k:"RED-10363",
+            s:"Empêcher la connexion d'un utilisateur inactif",
+            p:"P2"
+          },
+          {
+            k:"RED-10362",
+            s:"Empêcher la connexion d'un utilisateur non vérifié",
+            p:"P2"
+          },
+          {
+            k:"RED-10360",
+            s:"Affichage d'un message d'erreur lors de la connexion avec des identifiants incorrects",
+            p:"P2"
+          },
+          {
+            k:"RED-10361",
+            s:"Empêcher la connexion si les champs obligatoires ne sont pas remplis",
+            p:"P2"
+          },
+          {
+            k:"RED-9541",
+            s:"Affichage du wording en cas d'erreur système ou réseau lors de la réinitialisation",
+            p:"P3"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"EMAILS",
+    label:"Emails & Notifications",
+    color:"#0F6E56",
+    desc:"Emails automatiques transactionnels, centre de notifications",
+    subs:[
+      {
+        id:"s22",
+        name:"Emails automatiques",
+        tickets:[
+          {
+            k:"RED-4459",
+            s:"Envoyer un mail aux transporteurs favorites lors du poste d'un lot",
+            p:"P0"
+          },
+          {
+            k:"RED-4457",
+            s:"Envoyer un mail au transporteur et au chargeur — offre acceptée",
+            p:"P0"
+          },
+          {
+            k:"RED-4455",
+            s:"Envoyer un mail au transporteur — offre rejetée",
+            p:"P0"
+          },
+          {
+            k:"RED-4451",
+            s:"Envoyer un mail — lot affrété à d'autres conditions",
+            p:"P0"
+          },
+          {
+            k:"RED-3982",
+            s:"Envoyer le mail CAF au chargeur après l'affrètement d'un lot",
+            p:"P0"
+          }
+        ]
+      },
+      {
+        id:"s23",
+        name:"Centre de notifications",
+        tickets:[
+          {
+            k:"RED-7308",
+            s:"[Notification] Afficher l'infoBulle — Transporteur",
+            p:"P0"
+          },
+          {
+            k:"RED-7291",
+            s:"[Notification] Afficher l'infoBulle — Chargeur",
+            p:"P0"
+          },
+          {
+            k:"RED-7214",
+            s:"Centre de notification : Affichage des notifications",
+            p:"P2"
+          },
+          {
+            k:"RED-9202",
+            s:"Actions sur une notification depuis le centre",
+            p:"P2"
+          },
+          {
+            k:"RED-9200",
+            s:"Filtrer les notifications",
+            p:"P3"
+          },
+          {
+            k:"RED-7206",
+            s:"Intégrer une cloche des notifications dans le menu latéral",
+            p:"P3"
           }
         ]
       }
@@ -1724,69 +1915,6 @@ const DEFAULT_DATA=[
     ]
   },
   {
-    id:"AUTH",
-    label:"Authentification",
-    color:"#6941C6",
-    desc:"SSO, Inscription, Connexion, mot de passe, gestion de compte",
-    subs:[
-      {
-        id:"s20a",
-        name:"SSO",
-        tickets:[
-          {k:"RED-SSO001",s:"Login via SSO avec l'option inscription activée",p:"P0"},
-          {k:"RED-SSO002",s:"Activation de l'Option SSO sur la company",p:"P0"},
-          {k:"RED-SSO003",s:"Login via SSO : Deux user autre que admin",p:"P1"},
-          {k:"RED-SSO004",s:"Login via SSO : Reset password",p:"P1"},
-          {k:"RED-SSO005",s:"Invitation d'un user : intégrer le formulaire d'invitation",p:"P2"},
-          {k:"RED-SSO006",s:"Activation de l'Option SSO sur la Company : Modification du mot de passe et/ou adresse mail",p:"P2"},
-          {k:"RED-SSO007",s:"Annulation activation de l'Option SSO sur la company",p:"P2"},
-          {k:"RED-SSO008",s:"Invitation d'un user : Invitation d'un user avec sso actif",p:"P2"},
-          {k:"RED-SSO009",s:"Activation SSO : Deux user s'appartenant au même domaine et deux company différentes",p:"P3"},
-          {k:"RED-SSO010",s:"Activer l'Option SSO sur la Company : New tag onglet Paramètres SSO",p:"P3"},
-          {k:"RED-SSO011",s:"Login via SSO : inscription pour deux user du même domaine pour deux company différentes",p:"P3"},
-          {k:"RED-SSO012",s:"Activation SSO sur une company : Plusieurs admin dans une même company",p:"P3"},
-          {k:"RED-SSO013",s:"Activation Option SSO : Activation SSO par un user autre que l'admin",p:"P3"},
-          {k:"RED-SSO014",s:"Invitation d'un user : un user avec une adresse mail existante",p:"P3"},
-          {k:"RED-SSO015",s:"Activer l'Option SSO sur la Company : Paramètres SSO",p:"P4"}
-        ]
-      },
-      {
-        id:"s20b",
-        name:"Inscription",
-        tickets:[
-          {k:"RED-14144",s:"[Authentification][Inscription] Création d'un compte administrateur",p:"P0"},
-          {k:"RED-INS001",s:"Création d'un compte utilisateur",p:"P0"}
-        ]
-      },
-      {
-        id:"s20c",
-        name:"Connexion",
-        tickets:[
-          {k:"RED-2369",s:"Se connecter à son compte Upply",p:"P0"},
-          {k:"RED-2368",s:"Afficher la page de login",p:"P0"},
-          {k:"RED-2344",s:"Affichage du menu pour un utilisateur Smart",p:"P0"},
-          {k:"RED-13495",s:"[Authentification] Connexion avec un profil Connect",p:"P0"},
-          {k:"RED-2357",s:"Réinitialiser le mot de passe",p:"P1"},
-          {k:"RED-2356",s:"Envoyer le mail de réinitialisation de mot de passe",p:"P1"},
-          {k:"RED-2355",s:"Ouvrir la page de réinitialisation de mot de passe",p:"P1"},
-          {k:"RED-2358",s:"Griser le bouton Réinitialiser tant que les conditions minimales ne sont pas remplies",p:"P1"},
-          {k:"RED-2360",s:"Se connecter à son compte Upply avec le nouveau mot de passe",p:"P1"},
-          {k:"RED-9204",s:"Lien de réinitialisation du mot de passe expiré",p:"P1"},
-          {k:"RED-9205",s:"Lien de réinitialisation du mot de passe déjà utilisé",p:"P1"},
-          {k:"RED-2359",s:"Débloquer le bouton Réinitialiser",p:"P1"},
-          {k:"RED-11459",s:"Se déconnecter de ma session",p:"P2"},
-          {k:"RED-10365",s:"Empêcher la connexion si l'entreprise est désactivée",p:"P2"},
-          {k:"RED-10366",s:"Empêcher la connexion d'un utilisateur non validé par l'administrateur",p:"P2"},
-          {k:"RED-10363",s:"Empêcher la connexion d'un utilisateur inactif",p:"P2"},
-          {k:"RED-10362",s:"Empêcher la connexion d'un utilisateur non vérifié",p:"P2"},
-          {k:"RED-10360",s:"Affichage d'un message d'erreur lors de la connexion avec des identifiants incorrects",p:"P2"},
-          {k:"RED-10361",s:"Empêcher la connexion si les champs obligatoires ne sont pas remplis",p:"P2"},
-          {k:"RED-9541",s:"Affichage du wording en cas d'erreur système ou réseau lors de la réinitialisation",p:"P3"}
-        ]
-      }
-    ]
-  },
-  {
     id:"MOBILE",
     label:"Mobile",
     color:"#993C1D",
@@ -1821,103 +1949,135 @@ const DEFAULT_DATA=[
     ]
   },
   {
-    id:"EMAILS",
-    label:"Emails & Notifications",
-    color:"#0F6E56",
-    desc:"Emails automatiques transactionnels, centre de notifications",
+    id:"JARVIS",
+    label:"Jarvis",
+    color:"#0C447C",
+    desc:"Facturation, billing, comptes shippers, dashboard interne",
     subs:[
       {
-        id:"s22",
-        name:"Emails automatiques",
+        id:"s13",
+        name:"Billing & comptes shippers",
         tickets:[
           {
-            k:"RED-4459",
-            s:"Envoyer un mail aux transporteurs favorites lors du poste d'un lot",
-            p:"P0"
+            k:"RED-17031",
+            s:"[Billing] Voir la liste des comptes shippers dans Jarvis",
+            p:"AD"
           },
           {
-            k:"RED-4457",
-            s:"Envoyer un mail au transporteur et au chargeur — offre acceptée",
-            p:"P0"
+            k:"RED-17032",
+            s:"[Billing] Modifier les informations d'un compte shipper existant",
+            p:"AD"
           },
           {
-            k:"RED-4455",
-            s:"Envoyer un mail au transporteur — offre rejetée",
-            p:"P0"
+            k:"RED-17033",
+            s:"[Billing] Créer un compte shipper sans accès Jarvis",
+            p:"AD"
           },
           {
-            k:"RED-4451",
-            s:"Envoyer un mail — lot affrété à d'autres conditions",
-            p:"P0"
+            k:"RED-17034",
+            s:"[Billing] Créer un compte shipper avec accès Jarvis activé",
+            p:"AD"
           },
           {
-            k:"RED-3982",
-            s:"Envoyer le mail CAF au chargeur après l'affrètement d'un lot",
-            p:"P0"
+            k:"RED-17037",
+            s:"[Billing] Activer l'accès Jarvis d'un compte shipper",
+            p:"AD"
+          },
+          {
+            k:"RED-17038",
+            s:"[Billing] Désactiver l'accès Jarvis d'un compte shipper",
+            p:"AD"
+          },
+          {
+            k:"RED-16228",
+            s:"Ouvrir la modale d'édition des informations de facturation",
+            p:"AD"
+          },
+          {
+            k:"RED-16229",
+            s:"Pré-remplir les champs dans la modale d'édition",
+            p:"AD"
+          },
+          {
+            k:"RED-16230",
+            s:"Sauvegarder les modifications des informations de facturation",
+            p:"AD"
           }
         ]
       },
       {
-        id:"s23",
-        name:"Centre de notifications",
+        id:"s14",
+        name:"Mode facturation & bascule",
         tickets:[
           {
-            k:"RED-7308",
-            s:"[Notification] Afficher l'infoBulle — Transporteur",
-            p:"P0"
+            k:"RED-17198",
+            s:"Confirmation d'un changement de mode et mise à jour de la brique",
+            p:"AD"
           },
           {
-            k:"RED-7291",
-            s:"[Notification] Afficher l'infoBulle — Chargeur",
-            p:"P0"
+            k:"RED-17193",
+            s:"Initialisation du mode par défaut — compte créé avant la mise en production",
+            p:"AD"
           },
           {
-            k:"RED-7214",
-            s:"Centre de notification : Affichage des notifications",
-            p:"P2"
+            k:"RED-17194",
+            s:"Initialisation du mode par défaut — compte créé après la mise en production",
+            p:"AD"
           },
           {
-            k:"RED-9202",
-            s:"Actions sur une notification depuis le centre",
-            p:"P2"
+            k:"RED-17160",
+            s:"Bascule CHARGEUR vers UPPLY : lots publiés avant/après la date d'effet",
+            p:"AD"
           },
           {
-            k:"RED-9200",
-            s:"Filtrer les notifications",
-            p:"P3"
+            k:"RED-17159",
+            s:"Bascule UPPLY vers CHARGEUR : lots publiés avant/après la date d'effet",
+            p:"AD"
           },
           {
-            k:"RED-7206",
-            s:"Intégrer une cloche des notifications dans le menu latéral",
-            p:"P3"
+            k:"RED-16201",
+            s:"Ouvrir la modale d'édition de facturation",
+            p:"AD"
           }
         ]
-      }
-    ]
-  },
-  {
-    id:"SMARKET",
-    label:"Smarketplace",
-    color:"#854F0B",
-    desc:"Annuaire des transporteurs, profils, spécialités",
-    subs:[
+      },
       {
-        id:"s24",
-        name:"Annuaire transporteurs",
+        id:"s15",
+        name:"Comptes & souscriptions",
         tickets:[
           {
-            k:"RED-14750",
-            s:"Rechercher un transporteur dans l'annuaire",
+            k:"RED-15628",
+            s:"[Jarvis] Ajout de l'option Grilles tarifaires pour les compagnies",
             p:"AD"
           },
           {
-            k:"RED-14749",
-            s:"Afficher le profil d'un transporteur",
+            k:"RED-14953",
+            s:"[Jarvis] Drawer d'édition d'une company: Section Identité et profil",
             p:"AD"
           },
           {
-            k:"RED-14748",
-            s:"Filtrer les transporteurs par spécialité",
+            k:"RED-14952",
+            s:"[Jarvis] Drawer d'édition d'une company: Section Contact référent",
+            p:"AD"
+          },
+          {
+            k:"RED-15780",
+            s:"Affichage des modes configurés lors de l'édition d'une souscription",
+            p:"AD"
+          },
+          {
+            k:"RED-15781",
+            s:"Modification des modes de benchmark lors de l'édition d'une souscription",
+            p:"AD"
+          },
+          {
+            k:"RED-16890",
+            s:"Déploiement du nouveau dashboard interne Jarvis pour le chargeur",
+            p:"AD"
+          },
+          {
+            k:"RED-16894",
+            s:"Déploiement du nouveau dashboard interne Jarvis pour le transporteur",
             p:"AD"
           }
         ]
@@ -1977,12 +2137,20 @@ function render(){
     const open=GO[g.id];
     const gtot=g.subs.reduce((s,sub)=>s+sub.tickets.length,0);
     const gauto=g.subs.reduce((s,sub)=>s+sub.tickets.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto').length,0);
+    const gP={'P0':0,'P1':0,'P2':0,'P3':0,'P4':0,'AD':0};
+    g.subs.forEach(sub=>sub.tickets.forEach(t=>{gP[t.p]=(gP[t.p]||0)+1;}));
+    const hmSegs=Object.entries({'P0':'hm-p0','P1':'hm-p1','P2':'hm-p2','P3':'hm-p3','P4':'hm-p4','AD':'hm-ad'})
+      .filter(([p])=>gP[p]>0)
+      .map(([p,cls])=>`<div class="hm-seg ${cls}" style="flex:${gP[p]}" title="${p}: ${gP[p]}"></div>`)
+      .join('');
+    const gadCount=gP['AD']||0;
     html+=`<div class="grp" id="grp-${g.id}">
       <div class="grp-h" onclick="toggleG('${g.id}')">
         <div class="grp-accent" style="background:${g.color}"></div>
         <div class="grp-info">
-          <div class="grp-name">${g.label}</div>
+          <div class="grp-name">${g.label}${gadCount>0?` <span style="font-size:10px;color:#B45309;font-weight:500;margin-left:6px">⚠ ${gadCount} à définir</span>`:''}</div>
           <div class="grp-desc">${g.desc}</div>
+          <div class="heatmap">${hmSegs}</div>
         </div>
         <div class="grp-pills">
           <span class="pill pill-t">${gtot} tests</span>
@@ -2319,6 +2487,96 @@ function toast(msg){
   _toastTimer=setTimeout(()=>el.classList.remove('show'),2500);
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// FILTRE À DÉFINIR
+// ═══════════════════════════════════════════════════════════
+function filterAD(){
+  document.getElementById('s-prio').value='AD';
+  document.getElementById('s-auto').value='';
+  document.getElementById('s-grp').value='';
+  document.getElementById('s-text').value='';
+  expandAll(true);
+  render();
+  toast('Affichage des tickets sans priorité');
+}
+
+// ═══════════════════════════════════════════════════════════
+// RAPPORT
+// ═══════════════════════════════════════════════════════════
+function genRapport(){
+  const date=new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+  let totalAll=0,autoAll=0;
+  DATA.forEach(g=>g.subs.forEach(s=>{
+    totalAll+=s.tickets.length;
+    autoAll+=s.tickets.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto').length;
+  }));
+  
+  let html=`<button class="hbtn rapport-close-btn" onclick="closeRapport()">✕ Fermer</button>
+    <h1>Cartographie QA — Bibliothèque de tests RED</h1>
+    <div class="rapport-meta">Généré le ${date} · Données live Jira · Statut AUTOMATED</div>
+    <div class="rapport-kpis">
+      <div class="rapport-kpi"><div class="rapport-kpi-n">${totalAll}</div><div class="rapport-kpi-l">Total tests actifs</div></div>
+      <div class="rapport-kpi"><div class="rapport-kpi-n" style="color:var(--green)">${autoAll}</div><div class="rapport-kpi-l">Automatisés</div></div>
+      <div class="rapport-kpi"><div class="rapport-kpi-n" style="color:#7A4008">${totalAll-autoAll}</div><div class="rapport-kpi-l">Manuels</div></div>
+    </div>
+    <h2>Répartition par groupe fonctionnel</h2>
+    <table class="rapport-table">
+      <thead><tr>
+        <th>Groupe</th><th>Total</th><th>Auto</th><th>Manuel</th>
+        <th style="color:var(--p0)">P0</th>
+        <th style="color:var(--p1)">P1</th>
+        <th style="color:var(--p2)">P2</th>
+        <th style="color:var(--p3)">P3</th>
+        <th style="color:var(--p4)">P4</th>
+        <th style="color:#888">À définir</th>
+      </tr></thead><tbody>`;
+  
+  const adGroups=[];
+  DATA.forEach(g=>{
+    const tks=g.subs.flatMap(s=>s.tickets);
+    const tot=tks.length;
+    const auto=tks.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto').length;
+    const p={P0:0,P1:0,P2:0,P3:0,P4:0,AD:0};
+    tks.forEach(t=>{p[t.p]=(p[t.p]||0)+1;});
+    html+=`<tr>
+      <td><strong>${g.label}</strong></td>
+      <td>${tot}</td><td style="color:var(--green)">${auto}</td><td>${tot-auto}</td>
+      <td style="color:var(--p0);font-weight:${p.P0?'600':'400'}">${p.P0||'—'}</td>
+      <td style="color:var(--p1);font-weight:${p.P1?'600':'400'}">${p.P1||'—'}</td>
+      <td style="color:var(--p2);font-weight:${p.P2?'600':'400'}">${p.P2||'—'}</td>
+      <td style="color:var(--p3);font-weight:${p.P3?'600':'400'}">${p.P3||'—'}</td>
+      <td style="color:var(--p4);font-weight:${p.P4?'600':'400'}">${p.P4||'—'}</td>
+      <td style="color:#B45309;font-weight:${p.AD?'600':'400'}">${p.AD||'—'}</td>
+    </tr>`;
+    if(p.AD>0) adGroups.push({g,tks:tks.filter(t=>t.p==='AD')});
+  });
+  html+=`</tbody></table>`;
+
+  if(adGroups.length>0){
+    html+=`<h2>⚠ Tickets sans priorité (${adGroups.reduce((s,x)=>s+x.tks.length,0)} au total)</h2>`;
+    adGroups.forEach(({g,tks})=>{
+      html+=`<div class="rapport-ad-section">
+        <div class="rapport-ad-title">${g.label} — ${tks.length} ticket(s)</div>
+        ${tks.map(t=>`<div class="rapport-ad-item"><a href="https://upply1.atlassian.net/browse/${t.k}" target="_blank" style="color:var(--blue);font-weight:600">${t.k}</a> — ${t.s}</div>`).join('')}
+      </div>`;
+    });
+  } else {
+    html+=`<p style="color:var(--green);font-weight:600;margin-top:8px">✓ Tous les tickets ont une priorité définie.</p>`;
+  }
+  
+  html+=`<div style="text-align:right;margin-top:24px">
+    <button class="hbtn" onclick="window.print()">🖨 Imprimer / Exporter PDF</button>
+    <button class="hbtn" onclick="closeRapport()" style="margin-left:8px">Fermer</button>
+  </div>`;
+  
+  document.getElementById('rapport-body').innerHTML=html;
+  document.getElementById('rapport-overlay').classList.add('open');
+}
+
+function closeRapport(){
+  document.getElementById('rapport-overlay').classList.remove('open');
+}
 // ═══════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════

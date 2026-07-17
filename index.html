@@ -66,8 +66,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .pill-m{background:#FDF0DC;color:var(--p1)}
 .grp-chev{font-size:14px;color:var(--text3);transition:transform .15s;flex-shrink:0;line-height:1}
 .grp-chev.open{transform:rotate(180deg)}
-.grp-prog{height:2px;background:#F0F0EE}
-.grp-prog-fill{height:100%;transition:width .3s}
+.grp-prog{display:none}
+.grp-prog-fill{display:none}
 .grp-body{display:none;border-top:1px solid var(--border2)}
 .grp-body.open{display:block}
 
@@ -2148,7 +2148,7 @@ function render(){
       <div class="grp-h" onclick="toggleG('${g.id}')">
         <div class="grp-accent" style="background:${g.color}"></div>
         <div class="grp-info">
-          <div class="grp-name">${g.label}${gadCount>0?` <span style="font-size:10px;color:#B45309;font-weight:500;margin-left:6px">⚠ ${gadCount} à définir</span>`:''}</div>
+          <div class="grp-name">${g.label}</div>
           <div class="grp-desc">${g.desc}</div>
           <div class="heatmap">${hmSegs}</div>
         </div>
@@ -2159,7 +2159,7 @@ function render(){
         </div>
         <span class="grp-chev${open?' open':''}">▾</span>
       </div>
-      <div class="grp-prog"><div class="grp-prog-fill" style="width:${gtot?Math.round(gauto/gtot*100):0}%;background:${g.color}"></div></div>
+
       <div class="grp-body${open?' open':''}">`;
 
     if(open){
@@ -2553,17 +2553,16 @@ function genRapport(){
   });
   html+=`</tbody></table>`;
 
-  if(adGroups.length>0){
-    html+=`<h2>⚠ Tickets sans priorité (${adGroups.reduce((s,x)=>s+x.tks.length,0)} au total)</h2>`;
-    adGroups.forEach(({g,tks})=>{
-      html+=`<div class="rapport-ad-section">
-        <div class="rapport-ad-title">${g.label} — ${tks.length} ticket(s)</div>
-        ${tks.map(t=>`<div class="rapport-ad-item"><a href="https://upply1.atlassian.net/browse/${t.k}" target="_blank" style="color:var(--blue);font-weight:600">${t.k}</a> — ${t.s}</div>`).join('')}
-      </div>`;
-    });
-  } else {
-    html+=`<p style="color:var(--green);font-weight:600;margin-top:8px">✓ Tous les tickets ont une priorité définie.</p>`;
-  }
+  // Section tests automatisés
+  html+=`<h2>⚙ Tests automatisés (${autoAll} au total)</h2>`;
+  DATA.forEach(g=>{
+    const autoTks=g.subs.flatMap(s=>s.tickets.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto'));
+    if(!autoTks.length) return;
+    html+=`<div class="rapport-ad-section" style="background:#EBF4DE;border-color:#88CC88">
+      <div class="rapport-ad-title" style="color:var(--green)">${g.label} — ${autoTks.length} test(s) automatisé(s)</div>
+      ${autoTks.map(t=>`<div class="rapport-ad-item"><a href="https://upply1.atlassian.net/browse/${t.k}" target="_blank" style="color:var(--blue);font-weight:600">${t.k}</a> — ${t.s}</div>`).join('')}
+    </div>`;
+  });
   
   html+=`<div style="text-align:right;margin-top:24px">
     <button class="hbtn" onclick="window.print()">🖨 Imprimer / Exporter PDF</button>

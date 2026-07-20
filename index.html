@@ -97,7 +97,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .ph4{background:var(--p4bg);color:var(--p4)}
 .phad{background:var(--adbg);color:var(--ad)}
 .ph-count{font-size:9px;opacity:.7;font-weight:400}
-.tc{padding:6px;position:relative}
+.tc{padding:6px;position:relative;max-height:400px;overflow-y:auto}
 
 /* ── TICKET ── */
 .tk{background:#FFF;border:1px solid var(--border);border-radius:5px;padding:6px 8px;margin-bottom:4px;display:flex;gap:6px;align-items:flex-start;cursor:default;transition:border-color .1s;position:relative}
@@ -189,16 +189,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 @media(max-width:600px){.pcols{grid-template-columns:repeat(2,1fr)}.kpi-bar{flex-wrap:wrap}.kpi{border-right:none;margin-right:0;padding-right:16px}}
 @media print{.toolbar,.header-btns,.tk-actions,.add-ticket-btn,.add-sub-btn{display:none!important}.grp-body,.sub-body{display:block!important}}
 
-/* ── HEATMAP BAR ── */
-.heatmap{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:6px;gap:1px}
-.hm-seg{height:100%;border-radius:1px;transition:width .3s}
-.hm-p0{background:var(--p0)}
-.hm-p1{background:var(--p1)}
-.hm-p2{background:var(--p2)}
-.hm-p3{background:var(--p3)}
-.hm-p4{background:var(--p4)}
-.hm-ad{background:#CCC}
-
 /* ── RAPPORT ── */
 .rapport-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
 .rapport-overlay.open{display:flex}
@@ -214,15 +204,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .rapport-table th{background:#F0F0EE;padding:7px 10px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
 .rapport-table td{padding:6px 10px;border-bottom:1px solid #F0F0EE}
 .rapport-table tr:last-child td{border-bottom:none}
-.rapport-ad-section{background:#FFF8E6;border:1px solid #F0CC88;border-radius:6px;padding:12px;margin-bottom:8px}
-.rapport-ad-title{font-size:12px;font-weight:600;color:#6B3A00;margin-bottom:8px}
-.rapport-ad-item{font-size:11px;color:#555;padding:2px 0}
-.rapport-close-btn{position:sticky;bottom:16px;float:right;margin-top:16px}
-@media print{
-  .rapport-overlay{position:static;padding:0;background:none}
-  .rapport-content{box-shadow:none;padding:16px}
-  .rapport-close-btn,.hbtn{display:none!important}
-}
+.rapport-auto-section{background:#EBF4DE;border:1px solid #88CC88;border-radius:6px;padding:12px;margin-bottom:8px}
+.rapport-auto-title{font-size:12px;font-weight:600;color:var(--green);margin-bottom:8px}
+.rapport-auto-item{font-size:11px;color:#555;padding:2px 0}
 </style>
 </head>
 <body>
@@ -260,7 +244,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <option value="P4">P4 — Régression</option>
     <option value="AD">⚠ À définir</option>
   </select>
-  <button class="hbtn" id="btn-ad" onclick="filterAD()" title="Voir tous les tickets sans priorité">⚠ À définir seulement</button>
+  <button class="hbtn" onclick="filterAD()">⚠ À définir</button>
   <select id="s-auto" onchange="render()">
     <option value="">Auto + Manuel</option>
     <option value="auto">Automatisés</option>
@@ -486,6 +470,26 @@ const DEFAULT_DATA=[
             k:"RED-2537",
             s:"Triez les lots disponibles par Date",
             p:"P4"
+          },
+          {
+            k:"RED-10950",
+            s:"Lots postés depuis un TMS : onglet Lots disponibles",
+            p:"AD"
+          },
+          {
+            k:"RED-3937",
+            s:"CLONE - Afficher les lots disponibles",
+            p:"AD"
+          },
+          {
+            k:"RED-3936",
+            s:"CLONE - Ajouter des filtres aux lots disponibles",
+            p:"AD"
+          },
+          {
+            k:"RED-2539",
+            s:"Triez les lots disponibles par Statut",
+            p:"AD"
           }
         ]
       },
@@ -572,6 +576,111 @@ const DEFAULT_DATA=[
             k:"RED-3989",
             s:"Empty state de la section document de la page détails des lots affrétés",
             p:"P4"
+          },
+          {
+            k:"RED-13926",
+            s:"Téléchargement de la POD depuis le détails des Lots affrétés - Chargeur",
+            p:"AD"
+          },
+          {
+            k:"RED-13925",
+            s:"[Lot affrété] Ouverture du drawer Fournir POD(s) - carrier",
+            p:"AD"
+          },
+          {
+            k:"RED-13924",
+            s:"[Lot affrété] Gestion des erreurs de dates lors de la validation Enlèvement Etape et Livraison - Carrier",
+            p:"AD"
+          },
+          {
+            k:"RED-13922",
+            s:"[Lot affrété] Ouverture du drawer Confirmer l'étape X - carrier",
+            p:"AD"
+          },
+          {
+            k:"RED-13921",
+            s:"[Lot affrété] Confirmer l'étape X via un drawer - Carrier",
+            p:"AD"
+          },
+          {
+            k:"RED-13919",
+            s:"[Lot affrété] Ouverture du drawer Confirmer la livraison - carrier",
+            p:"AD"
+          },
+          {
+            k:"RED-13918",
+            s:"[Lot affrété] Marquer comme Livré via un drawer - Carrier",
+            p:"AD"
+          },
+          {
+            k:"RED-13904",
+            s:"[Lot affrété] Ouverture du drawer Confirmer le chargement - carrier",
+            p:"AD"
+          },
+          {
+            k:"RED-13900",
+            s:"[Lot affrété] Marquer comme En cours via un drawer - Carrier",
+            p:"AD"
+          },
+          {
+            k:"RED-13027",
+            s:"Afficher la section Section Details du Trajet d'un lot affrété pour chargeur/transporteur",
+            p:"AD"
+          },
+          {
+            k:"RED-12575",
+            s:"[Web] New design MAP lots affrétés chargeur",
+            p:"AD"
+          },
+          {
+            k:"RED-12354",
+            s:"Affichage des lots affrétés avec CAF en cours de génération depuis la liste des ordres d'affrèttement",
+            p:"AD"
+          },
+          {
+            k:"RED-11589",
+            s:"Annulation d'un lot affrété avec prix initial",
+            p:"AD"
+          },
+          {
+            k:"RED-9925",
+            s:"Comportement des liens POD selon les statuts côté chargeur",
+            p:"AD"
+          },
+          {
+            k:"RED-4225",
+            s:"Test [Phoenix Chargeur] Lots affrétés : Barre de recherche",
+            p:"AD"
+          },
+          {
+            k:"RED-3942",
+            s:"CLONE - Accéder aux différentes sections de la page détails d'un lot affrété depuis les tabs",
+            p:"AD"
+          },
+          {
+            k:"RED-3941",
+            s:"CLONE - Afficher le Header de détails d'un lot affrété",
+            p:"AD"
+          },
+          {
+            k:"RED-3940",
+            s:"CLONE - Afficher les lots affrétés",
+            p:"AD"
+          },
+          {
+            k:"RED-3463",
+            s:"Triez les lots affrétés par Statut",
+            p:"AD"
+          },
+          {
+            k:"RED-3457",
+            s:"Possibilité de trier le tableau des lots affrétés",
+            p:"AD"
+          },
+          {
+            k:"RED-3309",
+            s:"Trier les lots affrétés par Fret",
+            p:"AD"
           }
         ]
       },
@@ -698,6 +807,11 @@ const DEFAULT_DATA=[
             k:"RED-2781",
             s:"Triez les offres reçues par Nom de l'entreprise",
             p:"P4"
+          },
+          {
+            k:"RED-3938",
+            s:"CLONE - Accepter une offre d'un transporteur",
+            p:"AD"
           }
         ]
       },
@@ -743,8 +857,8 @@ const DEFAULT_DATA=[
         ]
       },
       {
-        id:"s5",
-        name:"Poste du lot & adresses",
+        id:"s5a",
+        name:"Poste du lot — Formulaire",
         tickets:[
           {
             k:"RED-2638",
@@ -762,6 +876,432 @@ const DEFAULT_DATA=[
             p:"P0"
           },
           {
+            k:"RED-14065",
+            s:"[Affréter un lot] Confirmation d'affrètement d'un lot à un transporteur",
+            p:"P0"
+          },
+          {
+            k:"RED-17065",
+            s:"Accepter le poste/affrètement lorsque Type de camion 'Tracteur seul' et Type de marchandises 'Remorque vide' ou 'Remorque chargée' sont cohérents",
+            p:"AD"
+          },
+          {
+            k:"RED-17063",
+            s:"Validation des types de camion et de marchandises pour le poste/affrètement",
+            p:"AD"
+          },
+          {
+            k:"RED-17062",
+            s:"Empêcher la validation/poste/affrètement si type de marchandises remorque (vide, chargée) sans type de camion 'Tracteur seul'",
+            p:"AD"
+          },
+          {
+            k:"RED-17061",
+            s:"Ne pas modifier les champs quantité/poids/hauteur lors de la sélection 'Remorque chargée'",
+            p:"AD"
+          },
+          {
+            k:"RED-17060",
+            s:"Pré-remplir quantité, poids et hauteur à 0 lors de la sélection 'Remorque vide'",
+            p:"AD"
+          },
+          {
+            k:"RED-17008",
+            s:"Affichage des nouveaux types de marchandises — anglais",
+            p:"AD"
+          },
+          {
+            k:"RED-17007",
+            s:"Affichage des nouveaux types de marchandises — français",
+            p:"AD"
+          },
+          {
+            k:"RED-17006",
+            s:"Affichage du nouveau type de camion — anglais",
+            p:"AD"
+          },
+          {
+            k:"RED-17005",
+            s:"Affichage du nouveau type de camion — français",
+            p:"AD"
+          },
+          {
+            k:"RED-16989",
+            s:"[Poste du lot] Les champs quantité/poids/hauteur sont modifiables si marchandise = Remorque chargée",
+            p:"AD"
+          },
+          {
+            k:"RED-16988",
+            s:"[Poste du lot] Pré-remplissage à 0 des champs quantité/poids/hauteur si marchandise = Remorque vide",
+            p:"AD"
+          },
+          {
+            k:"RED-16987",
+            s:"[Poste du lot] Désactivation du champ Type de camion si marchandise = Remorque",
+            p:"AD"
+          },
+          {
+            k:"RED-16986",
+            s:"[Poste du lot]  Pré-remplissage du champ Type de camion à Tracteur seul si marchandise = Remorque",
+            p:"AD"
+          },
+          {
+            k:"RED-16985",
+            s:"[Poste du lot ] Tracteur seul absent si type de marchandise est standard",
+            p:"AD"
+          },
+          {
+            k:"RED-16983",
+            s:"[Poste du lot] Disponibilité du type de camion Tracteur seul dans la liste",
+            p:"AD"
+          },
+          {
+            k:"RED-16892",
+            s:"Validation post-déploiement et gestion des erreurs détectées",
+            p:"AD"
+          },
+          {
+            k:"RED-16763",
+            s:"Présence du compteur sur les deux pages listées",
+            p:"AD"
+          },
+          {
+            k:"RED-16762",
+            s:"Le compteur n'apparaît pas sur les pages non concernées",
+            p:"AD"
+          },
+          {
+            k:"RED-16761",
+            s:"Emplacement du compteur : à droite du titre H1",
+            p:"AD"
+          },
+          {
+            k:"RED-16760",
+            s:"Le compteur se met à jour dynamiquement lors de l'application des filtres sur 'Ordres d’affrètements'",
+            p:"AD"
+          },
+          {
+            k:"RED-16759",
+            s:"Masquer le compteur lorsque le nombre de lots est nul ou absent",
+            p:"AD"
+          },
+          {
+            k:"RED-14912",
+            s:"Dupliquer un lot posté sur marketplace pour l'affréter directement : cas avec ou sans véhicule souhaité",
+            p:"AD"
+          },
+          {
+            k:"RED-14911",
+            s:"Dupliquer un lot posté sur marketplace pour l'affréter directement : cas avec ou sans camion souhaité renseigné",
+            p:"AD"
+          },
+          {
+            k:"RED-14909",
+            s:"Dupliquer un lot directement affrété pour Rechercher un transporteur",
+            p:"AD"
+          },
+          {
+            k:"RED-14908",
+            s:"Dupliquer un lot directement affrété pour l'affréter directement",
+            p:"AD"
+          },
+          {
+            k:"RED-14906",
+            s:"Duplication d'un lot depuis menu action",
+            p:"AD"
+          },
+          {
+            k:"RED-14080",
+            s:"Accès au formulaire du Post du lot depuis la bannière ",
+            p:"AD"
+          },
+          {
+            k:"RED-14064",
+            s:"[Affréter un lot] Type de véhicule - un seul véhicule renseigné sur le lot",
+            p:"AD"
+          },
+          {
+            k:"RED-14062",
+            s:"[Affréter un lot] Type de véhicule - plusieurs véhicules renseignés sur le lot",
+            p:"AD"
+          },
+          {
+            k:"RED-14061",
+            s:"[Affréter un lot] Ouverture du sélecteur de contact transporteurs ",
+            p:"AD"
+          },
+          {
+            k:"RED-14060",
+            s:"[Affréter un lot] Type de véhicule - aucun véhicule renseigné sur le lot",
+            p:"AD"
+          },
+          {
+            k:"RED-14059",
+            s:"[Affréter un lot] Recherche des compagnies de transport pour affrètement d’un lot",
+            p:"AD"
+          },
+          {
+            k:"RED-14058",
+            s:"[Affréter un lot] Pré-remplissage du contact après sélection d'une compagnie ",
+            p:"AD"
+          },
+          {
+            k:"RED-14057",
+            s:"[Affréter un lot] Afficher la section Sélection du transporteur",
+            p:"AD"
+          },
+          {
+            k:"RED-14056",
+            s:"[Affréter un lot] Afficher la section Condition d'affrètement",
+            p:"AD"
+          },
+          {
+            k:"RED-13460",
+            s:"Détail d'un lot au statut Affrètement annulé",
+            p:"AD"
+          },
+          {
+            k:"RED-13031",
+            s:"[Chargeur] Affichage des badges transporteur",
+            p:"AD"
+          },
+          {
+            k:"RED-12357",
+            s:"[Chargeur] Ajout du tooltip sur le lien CAF en cours de génération",
+            p:"AD"
+          },
+          {
+            k:"RED-12342",
+            s:"[Poste du lot] Vérification des valeurs et limites des champs Fret et transport",
+            p:"AD"
+          },
+          {
+            k:"RED-12265",
+            s:"[Chargeur] Ajout Référence Upply | Référence du lot depuis le détails des offres",
+            p:"AD"
+          },
+          {
+            k:"RED-12248",
+            s:"Check non régression par rapport au comportement actuel pour la hauteur max du Fret",
+            p:"AD"
+          },
+          {
+            k:"RED-12247",
+            s:"Permettre d’indiquer une hauteur avec deux chiffres après la virgule lors de la modification du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-12246",
+            s:"Permettre d’indiquer une hauteur avec deux chiffres après la virgule lors du post du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-11942",
+            s:"Visualisation de la jauge Benchmark côté transporteur lors de la saisie d'une offre",
+            p:"AD"
+          },
+          {
+            k:"RED-10961",
+            s:"Lots postés depuis un TMS : Détails du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10958",
+            s:"Lots postés depuis un TMS : onglet consultation des offres sur ce lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10543",
+            s:"[Refonte poste du lot ] Erreur de cohérence dans les informations de date",
+            p:"AD"
+          },
+          {
+            k:"RED-10541",
+            s:"Modification des informations sans erreurs",
+            p:"AD"
+          },
+          {
+            k:"RED-10540",
+            s:"Accéder au formulaire de modification de lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10430",
+            s:"Dupliquer un lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10357",
+            s:"Post du lot : Affichage de la modale de confirmation lors du post du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10213",
+            s:"[Refonte post du lot] Cas d'erreur : Option hors weekend activée après sélection d'une date de week-end",
+            p:"AD"
+          },
+          {
+            k:"RED-10187",
+            s:"[Refonte post du lot] Options - Visibilité des options selon l'activation sur la compagnie",
+            p:"AD"
+          },
+          {
+            k:"RED-10185",
+            s:"[Refonte post du lot] Fret et transport - Validation du CTA en fonction des options de la société",
+            p:"AD"
+          },
+          {
+            k:"RED-10183",
+            s:"[Refonte post du lot] Fret et transport - Activation de l'échange de palettes",
+            p:"AD"
+          },
+          {
+            k:"RED-10167",
+            s:"[Refonte post du lot] État initial du stepper",
+            p:"AD"
+          },
+          {
+            k:"RED-10080",
+            s:"[Poste du lot] Ouverture du formulaire de post d’un lot",
+            p:"AD"
+          },
+          {
+            k:"RED-9302",
+            s:"[Chargeur] Ajouter un tooltip pour le champ Rechercher",
+            p:"AD"
+          },
+          {
+            k:"RED-9134",
+            s:"Afficher et filtrer la pages Lots inactifs",
+            p:"AD"
+          },
+          {
+            k:"RED-9130",
+            s:"Connect_Renvoyer l'ID du lot dupliqué ",
+            p:"AD"
+          },
+          {
+            k:"RED-8969",
+            s:"Connect_Prix de réserve non modifiable",
+            p:"AD"
+          },
+          {
+            k:"RED-8833",
+            s:"Post du lot : Affrètement automatique - Prix maximum d'achat",
+            p:"AD"
+          },
+          {
+            k:"RED-8792",
+            s:"Connect_Header et menu réglage",
+            p:"AD"
+          },
+          {
+            k:"RED-7477",
+            s:"[Poste du lot] Gestion du champ Marchandises dangereuses durant le poste du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-5467",
+            s:"Display le Flexibilité : Nouvelle expérience des dates",
+            p:"AD"
+          },
+          {
+            k:"RED-5464",
+            s:"Display le tag Hors-week-end : Nouvelle expérience des dates",
+            p:"AD"
+          },
+          {
+            k:"RED-5253",
+            s:"[Poste du lot] Autocomplete des villes ou code postal",
+            p:"AD"
+          },
+          {
+            k:"RED-4074",
+            s:"Trier la liste des Transporteur Favorites",
+            p:"AD"
+          },
+          {
+            k:"RED-3728",
+            s:"Afficher le statut Annulé et désactiver l’acceptation de l’offre",
+            p:"AD"
+          },
+          {
+            k:"RED-3578",
+            s:"Menu à 3 points sur la page des lots inactifs",
+            p:"AD"
+          },
+          {
+            k:"RED-3443",
+            s:"Supprimer un lot annulé depuis la liste des lots inactifs",
+            p:"AD"
+          },
+          {
+            k:"RED-3300",
+            s:"Afficher le nouveau composant pour la répartition des prix",
+            p:"AD"
+          },
+          {
+            k:"RED-3144",
+            s:"Rechercher des lot suite à la validation customer care",
+            p:"AD"
+          },
+          {
+            k:"RED-3143",
+            s:"Poster un lot suite à la validation customer care",
+            p:"AD"
+          },
+          {
+            k:"RED-3142",
+            s:"[Chargeur] Affichage de la modale d'accès pour un profil shipper",
+            p:"AD"
+          },
+          {
+            k:"RED-3137",
+            s:"Faire une recherche du lot à transporter après l'inscription",
+            p:"AD"
+          },
+          {
+            k:"RED-2791",
+            s:"Affichage d'une offre déjà rejetée",
+            p:"AD"
+          },
+          {
+            k:"RED-2790",
+            s:"Afficher un empty state quand on a 0 offres pour un lot",
+            p:"AD"
+          },
+          {
+            k:"RED-2448",
+            s:"[Poste du lot] Réouverture du drawer contact après annulation",
+            p:"AD"
+          },
+          {
+            k:"RED-2442",
+            s:"[Poste du lot] Annulation de la saisie et fermeture du drawer",
+            p:"AD"
+          },
+          {
+            k:"RED-2436",
+            s:"[Poste du lot] Remplissage et validation du formulaire contact dans le drawer",
+            p:"AD"
+          },
+          {
+            k:"RED-2431",
+            s:"[Poste du lot] Comportement du créneau horaire dans le poste du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-2399",
+            s:"[Poste du lot] Bloquer l'affichage du calendrier à 3 mois  ",
+            p:"AD"
+          }
+        ]
+      },
+      {
+        id:"s5b",
+        name:"Carnet d adresses",
+        tickets:[
+          {
             k:"RED-10787",
             s:"Création d'une adresse durant le post d'un lot : Ajout d'une nouvelle adresse",
             p:"P0"
@@ -772,9 +1312,360 @@ const DEFAULT_DATA=[
             p:"P0"
           },
           {
-            k:"RED-14065",
-            s:"[Affréter un lot] Confirmation d'affrètement d'un lot à un transporteur",
-            p:"P0"
+            k:"RED-11493",
+            s:"[Carnet d'adresses] Sauvegarde des modifications d'une adresse dans le carnet d'adresses",
+            p:"AD"
+          },
+          {
+            k:"RED-11492",
+            s:"[Carnet d'adresses] Envoie des Address id lors de la modification d'une adresse pour le Post du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-11486",
+            s:"[Carnet d'adresses] Envoie des Address id lors de la création d'une adresse pour le Post du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10965",
+            s:"Ajout d'un toaster lors de la création d'une adresse dans le carnet d'adresse",
+            p:"AD"
+          },
+          {
+            k:"RED-10843",
+            s:"Supprimer le teaser carnet d'adresses sur le poste du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10801",
+            s:"Impact du carnet d'adresse sur l'ouverture du calendrier : Valider ou non une date depuis le calendrier",
+            p:"AD"
+          },
+          {
+            k:"RED-10799",
+            s:"Impact du carnet d'adresse sur l'ouverture du calendrier : Ouverture du calendrier ",
+            p:"AD"
+          },
+          {
+            k:"RED-10791",
+            s:"Modification d'adresse durant le post d'un lot : modification d'une adresse",
+            p:"AD"
+          },
+          {
+            k:"RED-10722",
+            s:"Impacts de l'ajout du carnet d'adresses sur le post du lot : Modification du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10715",
+            s:"Impacts de l'ajout du carnet d'adresses sur le post du lot : Duplication du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10700",
+            s:"Impacts de l'ajout du carnet d'adresses sur le post du lot : Poster un lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10698",
+            s:"Impacts de l'ajout du carnet d'adresses sur le post du lot : comportement liste des adresses",
+            p:"AD"
+          },
+          {
+            k:"RED-10697",
+            s:"Impacts de l'ajout du carnet d'adresses sur le post du lot : Affichage des adresses depuis la liste",
+            p:"AD"
+          },
+          {
+            k:"RED-10686",
+            s:"Modification avec succès d'une adresse sur la page carnet d'adresses",
+            p:"AD"
+          },
+          {
+            k:"RED-10685",
+            s:"Modification d'une adresse sur la page carnet d'adresses : Bouton Enregistrer",
+            p:"AD"
+          },
+          {
+            k:"RED-10684",
+            s:"Création d'une adresse sur la page carnet d'adresses",
+            p:"AD"
+          },
+          {
+            k:"RED-10679",
+            s:"Drawer création d'adresse sur la page carnet d'adresses",
+            p:"AD"
+          },
+          {
+            k:"RED-10677",
+            s:"Impacts de l'ajout du carnet d'adresses sur le post du lot : Poster un lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10653",
+            s:"Impacts de l'ajout du carnet d'adresses : Affichage de l'adresse sélectionnée sur le post du lot ",
+            p:"AD"
+          },
+          {
+            k:"RED-10652",
+            s:"Impacts de l'ajout du carnet d'adresses sur le post du lot : Sélection d'une adresse avec erreur",
+            p:"AD"
+          },
+          {
+            k:"RED-10650",
+            s:"Impacts de l'ajout du carnet d'adresses sur le post du lot : Recherche d'une adresse ",
+            p:"AD"
+          },
+          {
+            k:"RED-10625",
+            s:"Carnet d'adresses : suppression d'une adresse",
+            p:"AD"
+          },
+          {
+            k:"RED-10624",
+            s:"Carnet d'adresses : Ajout d'une Empty State ",
+            p:"AD"
+          },
+          {
+            k:"RED-10622",
+            s:"Carnet d'adresses : Affichage des adresses sur la liste",
+            p:"AD"
+          },
+          {
+            k:"RED-10619",
+            s:"Carnet d'adresses : Rechercher une adresse",
+            p:"AD"
+          },
+          {
+            k:"RED-10615",
+            s:"Ajout de la page carnet d'adresses pour les shippers",
+            p:"AD"
+          },
+          {
+            k:"RED-10610",
+            s:"Affichage du teaser pour le carnet d'adresses",
+            p:"AD"
+          },
+          {
+            k:"RED-4309",
+            s:"Post d'un lot avec accent sur l'adresse mail",
+            p:"AD"
+          }
+        ]
+      },
+      {
+        id:"s5c",
+        name:"Multistop",
+        tickets:[
+          {
+            k:"RED-14081",
+            s:"Gestion des erreurs pour la bannière multistop",
+            p:"AD"
+          },
+          {
+            k:"RED-14079",
+            s:"Création bannière Création d'un lot multistop ",
+            p:"AD"
+          },
+          {
+            k:"RED-13838",
+            s:"Post du lot Multistop : Ajouter une étape intermédiaire X hors la 1ére ",
+            p:"AD"
+          },
+          {
+            k:"RED-13835",
+            s:"Post du lot : Création d'une nouvelle adresse pour une étape sans l'enregistrer dans le carnet d'adresse",
+            p:"AD"
+          },
+          {
+            k:"RED-13827",
+            s:"Post du lot : Sélection d'une adresse existante depuis le carnet d'adresse pour une étape",
+            p:"AD"
+          },
+          {
+            k:"RED-13826",
+            s:"Post du lot : Affichage des informations d'Enlèvement depuis le stepper",
+            p:"AD"
+          },
+          {
+            k:"RED-12800",
+            s:"Duplication lot Multistop : Ajout ou suppression d'une étape intermédiaire",
+            p:"AD"
+          },
+          {
+            k:"RED-12776",
+            s:"[Transporteur] Affichage des informations Etape X depuis le drawer détails du lot",
+            p:"AD"
+          },
+          {
+            k:"RED-12650",
+            s:"[Web] Evols Maps pour le Multistop - Chargeur",
+            p:"AD"
+          },
+          {
+            k:"RED-12596",
+            s:"Post du lot multistop_ Gestion des erreurs",
+            p:"AD"
+          },
+          {
+            k:"RED-12595",
+            s:"Modification d'un lot Multistop_ Suppression d'une étape intermédiaire",
+            p:"AD"
+          },
+          {
+            k:"RED-12578",
+            s:"[Chargeur] Affichage des lots Multistop",
+            p:"AD"
+          },
+          {
+            k:"RED-12574",
+            s:"Post du lot Multistop_ Fret et Transport",
+            p:"AD"
+          },
+          {
+            k:"RED-12572",
+            s:"Post du lot Multistop_ Livraison",
+            p:"AD"
+          },
+          {
+            k:"RED-12533",
+            s:"Post du lot Multistop_ Post du lot avec une ou plusieurs étapes",
+            p:"AD"
+          },
+          {
+            k:"RED-12530",
+            s:"Post du lot Multistop : Ajouter une étape intermédiaire 1",
+            p:"AD"
+          },
+          {
+            k:"RED-12526",
+            s:"Post du lot Multistop : Renseigner les champs de l'étape d'enlèvement",
+            p:"AD"
+          },
+          {
+            k:"RED-10649",
+            s:"Impacts de l'ajout du carnet d'adresses sur le post du lot : Input pour renseigner les Adresses d'Enlèvement et de Livraison",
+            p:"AD"
+          },
+          {
+            k:"RED-10544",
+            s:"Naviguer entre les étapes et modifier les champs sans valider",
+            p:"AD"
+          },
+          {
+            k:"RED-10542",
+            s:"Post du lot multistop : Annulation des modifications en cours",
+            p:"AD"
+          },
+          {
+            k:"RED-10264",
+            s:"Post du lot Multistop - Options",
+            p:"AD"
+          },
+          {
+            k:"RED-10244",
+            s:"Post du lot Sélectionner une date de livraison dans le même intervalle que l'enlèvement",
+            p:"AD"
+          },
+          {
+            k:"RED-10212",
+            s:"[Refonte post du lot] Cas d'erreur : Heure de livraison antérieure à l'heure d'enlèvement le même jour",
+            p:"AD"
+          },
+          {
+            k:"RED-10211",
+            s:"[Refonte post du lot] Cas d'erreur : Date d'enlèvement postérieure à la date de livraison",
+            p:"AD"
+          },
+          {
+            k:"RED-10188",
+            s:"Post du lot Multistop : Gestion des Options ",
+            p:"AD"
+          },
+          {
+            k:"RED-10169",
+            s:"[Refonte post du lot] Accès refusé pour les étapes incomplètes",
+            p:"AD"
+          },
+          {
+            k:"RED-10168",
+            s:"[Refonte post du lot] Validation des étapes séquentiellement",
+            p:"AD"
+          },
+          {
+            k:"RED-10091",
+            s:"[Poste du lot: Livraison] Valider la livraison et passer à l'étape suivante",
+            p:"AD"
+          },
+          {
+            k:"RED-10090",
+            s:"[Poste du lot: Livraison] Annuler le post du lot en cours (Étape 2)",
+            p:"AD"
+          },
+          {
+            k:"RED-10089",
+            s:"[Poste du lot: Livraison] Sélectionner une date et une heure de livraison",
+            p:"AD"
+          },
+          {
+            k:"RED-10087",
+            s:"[Poste du lot: Livraison] Ouverture de l'étape 2 du formulaire de post d’un lot",
+            p:"AD"
+          },
+          {
+            k:"RED-10085",
+            s:"[Poste du lot: Enlèvement] Valider l'enlèvement et passer à l'étape suivante",
+            p:"AD"
+          },
+          {
+            k:"RED-10084",
+            s:"[Poste du lot: Enlèvement] Annuler le post du lot en cours",
+            p:"AD"
+          },
+          {
+            k:"RED-10083",
+            s:"[Poste du lot: Enlèvement] Sélectionner une date et une heure d'enlèvement",
+            p:"AD"
+          },
+          {
+            k:"RED-8718",
+            s:"[Poste du lot ]Message d'erreur date et horaires d'enlèvement et livraison",
+            p:"AD"
+          },
+          {
+            k:"RED-5252",
+            s:"[Poste du lot] Proposer un Pays d'enlèvement et de livraison",
+            p:"AD"
+          },
+          {
+            k:"RED-3931",
+            s:"CLONE - CTA poster un lot",
+            p:"AD"
+          },
+          {
+            k:"RED-3929",
+            s:"CLONE - Accéder au formulaire Fret et Moyen de Transport",
+            p:"AD"
+          },
+          {
+            k:"RED-3928",
+            s:"CLONE - Gestion des champs sur le formulaire Enlèvement & Livraison du poste d'un lot",
+            p:"AD"
+          },
+          {
+            k:"RED-3521",
+            s:"Tri alphabétique auto compilation champ livraison et enlèvement",
+            p:"AD"
+          },
+          {
+            k:"RED-2465",
+            s:"[Poste du lot] Ne pas renseigner une date de livraison",
+            p:"AD"
+          },
+          {
+            k:"RED-2450",
+            s:"[Poste du lot] Ajouter un drawer contact pour les étapes d'enlèvement et de livraison",
+            p:"AD"
           }
         ]
       }
@@ -940,12 +1831,12 @@ const DEFAULT_DATA=[
           {
             k:"RED-3760",
             s:"Passer le lot de Terminé à POD en vérification dans la page Ordres d'affrètements",
-            p:"P0"
+            p:"P1"
           },
           {
             k:"RED-5961",
             s:"Consultation de la Validité de l'offre",
-            p:"P3"
+            p:"P2"
           },
           {
             k:"RED-3617",
@@ -960,12 +1851,12 @@ const DEFAULT_DATA=[
           {
             k:"RED-3853",
             s:"Suppression des Offres annulées",
-            p:"P2"
+            p:"P4"
           },
           {
             k:"RED-5962",
             s:"Gestion des offres expirées",
-            p:"P2"
+            p:"P4"
           },
           {
             k:"RED-9103",
@@ -2086,6 +2977,70 @@ const DEFAULT_DATA=[
   }
 ]
 
+
+// ── FILTRE À DÉFINIR ──
+function filterAD(){
+  document.getElementById('s-prio').value='AD';
+  document.getElementById('s-auto').value='';
+  document.getElementById('s-grp').value='';
+  document.getElementById('s-text').value='';
+  expandAll(true);render();
+  toast('Affichage des tickets sans priorité');
+}
+
+// ── RAPPORT ──
+function genRapport(){
+  const date=new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+  let totalAll=0,autoAll=0;
+  DATA.forEach(g=>g.subs.forEach(s=>{
+    totalAll+=s.tickets.length;
+    autoAll+=s.tickets.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto').length;
+  }));
+  let html=`<button class="hbtn" onclick="closeRapport()" style="float:right">✕ Fermer</button>
+    <h1>Cartographie QA — RED</h1>
+    <div class="rapport-meta">Généré le ${date} · Données live Jira · Statut AUTOMATED</div>
+    <div class="rapport-kpis">
+      <div class="rapport-kpi"><div class="rapport-kpi-n">${totalAll}</div><div class="rapport-kpi-l">Total tests</div></div>
+      <div class="rapport-kpi"><div class="rapport-kpi-n" style="color:var(--green)">${autoAll}</div><div class="rapport-kpi-l">Automatisés</div></div>
+      <div class="rapport-kpi"><div class="rapport-kpi-n" style="color:#7A4008">${totalAll-autoAll}</div><div class="rapport-kpi-l">Manuels</div></div>
+    </div>
+    <h2>Répartition par groupe</h2>
+    <table class="rapport-table"><thead><tr>
+      <th>Groupe</th><th>Total</th><th>Auto</th><th>Manuel</th>
+      <th style="color:var(--p0)">P0</th><th style="color:var(--p1)">P1</th>
+      <th style="color:var(--p2)">P2</th><th style="color:var(--p3)">P3</th>
+      <th style="color:var(--p4)">P4</th><th style="color:#888">À définir</th>
+    </tr></thead><tbody>`;
+  DATA.forEach(g=>{
+    const tks=g.subs.flatMap(s=>s.tickets);
+    const tot=tks.length;
+    const auto=tks.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto').length;
+    const p={P0:0,P1:0,P2:0,P3:0,P4:0,AD:0};
+    tks.forEach(t=>{p[t.p]=(p[t.p]||0)+1;});
+    html+=`<tr><td><strong>${g.label}</strong></td><td>${tot}</td>
+      <td style="color:var(--green)">${auto}</td><td>${tot-auto}</td>
+      <td style="color:var(--p0)">${p.P0||'—'}</td><td style="color:var(--p1)">${p.P1||'—'}</td>
+      <td style="color:var(--p2)">${p.P2||'—'}</td><td style="color:var(--p3)">${p.P3||'—'}</td>
+      <td style="color:var(--p4)">${p.P4||'—'}</td><td style="color:#B45309">${p.AD||'—'}</td></tr>`;
+  });
+  html+=`</tbody></table>
+    <h2>⚙ Tests automatisés (${autoAll} au total)</h2>`;
+  DATA.forEach(g=>{
+    const autoTks=g.subs.flatMap(s=>s.tickets.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto'));
+    if(!autoTks.length) return;
+    html+=`<div class="rapport-auto-section">
+      <div class="rapport-auto-title">${g.label} — ${autoTks.length} test(s)</div>
+      ${autoTks.map(t=>`<div class="rapport-auto-item"><a href="https://upply1.atlassian.net/browse/${t.k}" target="_blank" style="color:var(--blue);font-weight:600">${t.k}</a> — ${t.s}</div>`).join('')}
+    </div>`;
+  });
+  html+=`<div style="text-align:right;margin-top:24px">
+    <button class="hbtn" onclick="window.print()">🖨 Imprimer</button>
+    <button class="hbtn" onclick="closeRapport()" style="margin-left:8px">Fermer</button>
+  </div>`;
+  document.getElementById('rapport-body').innerHTML=html;
+  document.getElementById('rapport-overlay').classList.add('open');
+}
+function closeRapport(){document.getElementById('rapport-overlay').classList.remove('open');}
 // ═══════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════
@@ -2137,20 +3092,12 @@ function render(){
     const open=GO[g.id];
     const gtot=g.subs.reduce((s,sub)=>s+sub.tickets.length,0);
     const gauto=g.subs.reduce((s,sub)=>s+sub.tickets.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto').length,0);
-    const gP={'P0':0,'P1':0,'P2':0,'P3':0,'P4':0,'AD':0};
-    g.subs.forEach(sub=>sub.tickets.forEach(t=>{gP[t.p]=(gP[t.p]||0)+1;}));
-    const hmSegs=Object.entries({'P0':'hm-p0','P1':'hm-p1','P2':'hm-p2','P3':'hm-p3','P4':'hm-p4','AD':'hm-ad'})
-      .filter(([p])=>gP[p]>0)
-      .map(([p,cls])=>`<div class="hm-seg ${cls}" style="flex:${gP[p]}" title="${p}: ${gP[p]}"></div>`)
-      .join('');
-    const gadCount=gP['AD']||0;
     html+=`<div class="grp" id="grp-${g.id}">
       <div class="grp-h" onclick="toggleG('${g.id}')">
         <div class="grp-accent" style="background:${g.color}"></div>
         <div class="grp-info">
           <div class="grp-name">${g.label}</div>
           <div class="grp-desc">${g.desc}</div>
-          <div class="heatmap">${hmSegs}</div>
         </div>
         <div class="grp-pills">
           <span class="pill pill-t">${gtot} tests</span>
@@ -2159,7 +3106,7 @@ function render(){
         </div>
         <span class="grp-chev${open?' open':''}">▾</span>
       </div>
-
+      <div class="grp-prog"><div class="grp-prog-fill" style="width:${gtot?Math.round(gauto/gtot*100):0}%;background:${g.color}"></div></div>
       <div class="grp-body${open?' open':''}">`;
 
     if(open){
@@ -2199,7 +3146,7 @@ function render(){
           if(!tks.length){
             html+=`<div class="empty">—</div>`;
           } else {
-            const shown=tks.slice(0,6);
+            const shown=tks.slice(0,50);
             shown.forEach(t=>{
               const isAuto=AUTO_SET.has(t.k)||t.manualAuto==='auto';
               html+=`<div class="tk" draggable="true" 
@@ -2234,7 +3181,7 @@ function render(){
                 </div>
               </div>`;
             });
-            if(tks.length>6)html+=`<div class="more-btn" onclick="showMore('${g.id}','${sub.id}','${p}')">+ ${tks.length-6} autres…</div>`;
+            if(tks.length>50)html+=`<div class="more-btn" onclick="showMore('${g.id}','${sub.id}','${p}')">+ ${tks.length-6} autres…</div>`;
           }
 
           html+=`<button class="add-ticket-btn" onclick="openAddTicket('${g.id}','${sub.id}','${p}')">+ Ajouter un ticket</button>`;
@@ -2487,95 +3434,6 @@ function toast(msg){
   _toastTimer=setTimeout(()=>el.classList.remove('show'),2500);
 }
 
-
-// ═══════════════════════════════════════════════════════════
-// FILTRE À DÉFINIR
-// ═══════════════════════════════════════════════════════════
-function filterAD(){
-  document.getElementById('s-prio').value='AD';
-  document.getElementById('s-auto').value='';
-  document.getElementById('s-grp').value='';
-  document.getElementById('s-text').value='';
-  expandAll(true);
-  render();
-  toast('Affichage des tickets sans priorité');
-}
-
-// ═══════════════════════════════════════════════════════════
-// RAPPORT
-// ═══════════════════════════════════════════════════════════
-function genRapport(){
-  const date=new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
-  let totalAll=0,autoAll=0;
-  DATA.forEach(g=>g.subs.forEach(s=>{
-    totalAll+=s.tickets.length;
-    autoAll+=s.tickets.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto').length;
-  }));
-  
-  let html=`<button class="hbtn rapport-close-btn" onclick="closeRapport()">✕ Fermer</button>
-    <h1>Cartographie QA — Bibliothèque de tests RED</h1>
-    <div class="rapport-meta">Généré le ${date} · Données live Jira · Statut AUTOMATED</div>
-    <div class="rapport-kpis">
-      <div class="rapport-kpi"><div class="rapport-kpi-n">${totalAll}</div><div class="rapport-kpi-l">Total tests actifs</div></div>
-      <div class="rapport-kpi"><div class="rapport-kpi-n" style="color:var(--green)">${autoAll}</div><div class="rapport-kpi-l">Automatisés</div></div>
-      <div class="rapport-kpi"><div class="rapport-kpi-n" style="color:#7A4008">${totalAll-autoAll}</div><div class="rapport-kpi-l">Manuels</div></div>
-    </div>
-    <h2>Répartition par groupe fonctionnel</h2>
-    <table class="rapport-table">
-      <thead><tr>
-        <th>Groupe</th><th>Total</th><th>Auto</th><th>Manuel</th>
-        <th style="color:var(--p0)">P0</th>
-        <th style="color:var(--p1)">P1</th>
-        <th style="color:var(--p2)">P2</th>
-        <th style="color:var(--p3)">P3</th>
-        <th style="color:var(--p4)">P4</th>
-        <th style="color:#888">À définir</th>
-      </tr></thead><tbody>`;
-  
-  const adGroups=[];
-  DATA.forEach(g=>{
-    const tks=g.subs.flatMap(s=>s.tickets);
-    const tot=tks.length;
-    const auto=tks.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto').length;
-    const p={P0:0,P1:0,P2:0,P3:0,P4:0,AD:0};
-    tks.forEach(t=>{p[t.p]=(p[t.p]||0)+1;});
-    html+=`<tr>
-      <td><strong>${g.label}</strong></td>
-      <td>${tot}</td><td style="color:var(--green)">${auto}</td><td>${tot-auto}</td>
-      <td style="color:var(--p0);font-weight:${p.P0?'600':'400'}">${p.P0||'—'}</td>
-      <td style="color:var(--p1);font-weight:${p.P1?'600':'400'}">${p.P1||'—'}</td>
-      <td style="color:var(--p2);font-weight:${p.P2?'600':'400'}">${p.P2||'—'}</td>
-      <td style="color:var(--p3);font-weight:${p.P3?'600':'400'}">${p.P3||'—'}</td>
-      <td style="color:var(--p4);font-weight:${p.P4?'600':'400'}">${p.P4||'—'}</td>
-      <td style="color:#B45309;font-weight:${p.AD?'600':'400'}">${p.AD||'—'}</td>
-    </tr>`;
-    if(p.AD>0) adGroups.push({g,tks:tks.filter(t=>t.p==='AD')});
-  });
-  html+=`</tbody></table>`;
-
-  // Section tests automatisés
-  html+=`<h2>⚙ Tests automatisés (${autoAll} au total)</h2>`;
-  DATA.forEach(g=>{
-    const autoTks=g.subs.flatMap(s=>s.tickets.filter(t=>AUTO_SET.has(t.k)||t.manualAuto==='auto'));
-    if(!autoTks.length) return;
-    html+=`<div class="rapport-ad-section" style="background:#EBF4DE;border-color:#88CC88">
-      <div class="rapport-ad-title" style="color:var(--green)">${g.label} — ${autoTks.length} test(s) automatisé(s)</div>
-      ${autoTks.map(t=>`<div class="rapport-ad-item"><a href="https://upply1.atlassian.net/browse/${t.k}" target="_blank" style="color:var(--blue);font-weight:600">${t.k}</a> — ${t.s}</div>`).join('')}
-    </div>`;
-  });
-  
-  html+=`<div style="text-align:right;margin-top:24px">
-    <button class="hbtn" onclick="window.print()">🖨 Imprimer / Exporter PDF</button>
-    <button class="hbtn" onclick="closeRapport()" style="margin-left:8px">Fermer</button>
-  </div>`;
-  
-  document.getElementById('rapport-body').innerHTML=html;
-  document.getElementById('rapport-overlay').classList.add('open');
-}
-
-function closeRapport(){
-  document.getElementById('rapport-overlay').classList.remove('open');
-}
 // ═══════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════
